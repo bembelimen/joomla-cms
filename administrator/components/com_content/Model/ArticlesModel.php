@@ -308,14 +308,14 @@ class ArticlesModel extends ListModel
 
 		if (is_numeric($condition))
 		{
-			$query->where($db->qn('ws.condition') . '=' . $db->quote($condition));
+			$query->where($db->quoteName('ws.condition') . '=' . $db->quote($condition));
 		}
 		elseif (!is_numeric($workflowState))
 		{
-			$query->where($db->qn('ws.condition') . ' IN ("0","1")');
+			$query->where($db->quoteName('ws.condition') . ' IN ("0","1")');
 		}
 
-		$query->where($db->qn('wa.extension') . '=' . $db->quote('com_content'));
+		$query->where($db->quoteName('wa.extension') . '=' . $db->quote('com_content'));
 
 		// Filter by categories and by level
 		$categoryId = $this->getState('filter.category_id', array());
@@ -490,11 +490,11 @@ class ArticlesModel extends ListModel
 
 				$query->select($select)
 					->from($db->quoteName('#__workflow_transitions', 't'))
-					->leftJoin($db->quoteName('#__workflow_states', 's') . ' ON ' . $db->qn('t.from_state_id') . ' IN(' . implode(',', $ids) . ')')
+					->leftJoin($db->quoteName('#__workflow_states', 's') . ' ON ' . $db->quoteName('t.from_state_id') . ' IN(' . implode(',', $ids) . ')')
 					->where($db->quoteName('t.to_state_id') . ' = ' . $db->quoteName('s.id'))
 					->where($db->quoteName('t.published') . ' = 1')
 					->where($db->quoteName('s.published') . ' = 1')
-					->order($db->qn('t.ordering'));
+					->order($db->quoteName('t.ordering'));
 
 				$transitions = $db->setQuery($query)->loadAssocList();
 
