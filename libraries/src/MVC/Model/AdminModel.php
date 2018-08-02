@@ -56,6 +56,13 @@ abstract class AdminModel extends FormModel
 	 */
 	protected $event_before_delete = null;
 
+    /**
+     * The event to trigger before moving categories to trash.
+     *
+     * @var    string
+     */
+    protected $event_before_delete_categories = null;
+
 	/**
 	 * The event to trigger before saving the data.
 	 *
@@ -190,6 +197,15 @@ abstract class AdminModel extends FormModel
 		{
 			$this->event_before_delete = 'onContentBeforeDelete';
 		}
+
+		if (isset($config['event_before_delete_categories']))
+        {
+            $this->event_before_delete_categories = $config['event_before_delete_categories'];
+        }
+        elseif (empty($this->event_before_delete_categories))
+        {
+            $this->event_before_delete_categories = 'onContentBeforeDeleteCategories';
+        }
 
 		if (isset($config['event_before_save']))
 		{
@@ -999,7 +1015,10 @@ abstract class AdminModel extends FormModel
 
 			if ($table->load($pk))
 			{
-				if (!$this->canEditState($table))
+                // Trigger the before delete categories event so it checks if category is empty.
+                $resultDeleteConfirmation = \JFactory::getApplication()->triggerEvent($this->event_before_delete_categories, array($table));
+
+                if (!$this->canEditState($table))
 				{
 					// Prune items that you can't change.
 					unset($pks[$i]);
@@ -1019,6 +1038,15 @@ abstract class AdminModel extends FormModel
 
 					return false;
 				}
+
+                // If the previously checked category has items associated with it, it cannot be moved to trash.
+                if (in_array(false, $resultDeleteConfirmation, true))
+                {
+                    // Prune items that you can't change.
+                    unset($pks[$i]);
+
+                    return false;
+                }
 			}
 		}
 
