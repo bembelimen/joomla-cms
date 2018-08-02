@@ -135,6 +135,21 @@ class PlgContentJoomla extends CMSPlugin
 		}
 	}
 
+    /**
+     * Don't allow categories to be deleted if they contain items or subcategories with items
+     *
+     * @param   object  $data     The data relating to the content that was deleted.
+     *
+     * @return  boolean
+     *
+     * @since   1.6
+     */
+    public function onContentBeforeDeleteCategories($data)
+    {
+        return $this->_canDeleteCategories($data);
+
+    }
+
 	/**
 	 * Checks if a given category can be deleted
 	 *
@@ -203,6 +218,7 @@ class PlgContentJoomla extends CMSPlugin
 							. Text::plural('COM_CATEGORIES_HAS_SUBCATEGORY_ITEMS', $count);
 						Factory::getApplication()->enqueueMessage($msg, 'error');
 						$result = false;
+
 					}
 				}
 			}
