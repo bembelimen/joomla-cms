@@ -77,6 +77,7 @@ JS;
 // @todo move the script to a file
 Factory::getDocument()->addScriptDeclaration($js);
 
+HTMLHelper::_('script', 'com_content/admin-articles-workflow-buttons.js', ['relative' => true, 'version' => 'auto']);
 $assoc = Associations::isEnabled();
 
 // Configure featured button renderer.
