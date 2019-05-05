@@ -14,6 +14,8 @@
                 onchange="this.form.submit();"
                 sql_select="id as value, title as workflow_id"
                 sql_from="#__workflows"
+                sql_where="published = 1"
+                translate="true"
         >
             <option value="">COM_WORKFLOW_SELECT_WORKFLOW</option>
         </field>
