@@ -30,7 +30,7 @@ INSERT INTO "#__modules" ("title", "note", "content", "ordering", "position", "c
 INSERT INTO "#__modules_menu" ("moduleid", "menuid") VALUES (currval(pg_get_serial_sequence('#__modules','id')), 0);
 
 INSERT INTO "#__modules" ("title", "note", "content", "ordering", "position", "checked_out", "checked_out_time", "publish_up", "publish_down", "published", "module", "access", "showtitle", "params", "client_id", "language") VALUES
-('Users Submenu', '', '', 1, 'cpanel-content', 0, NULL, NULL, NULL, 1, 'mod_submenu', 1, 0, '{"menutype":"*","preset":"users","layout":"_:default","moduleclass_sfx":"","module_tag":"div","bootstrap_size":"6","header_tag":"h3","header_class":"","style":"System-none"}', 1, '*');
+('Users Submenu', '', '', 1, 'cpanel-users', 0, NULL, NULL, NULL, 1, 'mod_submenu', 1, 0, '{"menutype":"*","preset":"users","layout":"_:default","moduleclass_sfx":"","module_tag":"div","bootstrap_size":"6","header_tag":"h3","header_class":"","style":"System-none"}', 1, '*');
 INSERT INTO "#__modules_menu" ("moduleid", "menuid") VALUES (currval(pg_get_serial_sequence('#__modules','id')), 0);
 
 INSERT INTO "#__modules" ("title", "note", "content", "ordering", "position", "checked_out", "checked_out_time", "publish_up", "publish_down", "published", "module", "access", "showtitle", "params", "client_id", "language") VALUES
@@ -76,7 +76,7 @@ INSERT INTO "#__modules_menu" ("moduleid", "menuid") VALUES (currval(pg_get_seri
 UPDATE "#__modules" SET "title" = 'Update Checks',"ordering" = 3,"position" = 'icon',"showtitle" = 1,"params" = '{"context":"update_quickicon","header_icon":"fa fa-sync","layout":"_:default","moduleclass_sfx":"","cache":1,"cache_time":900,"style":"0","module_tag":"div","bootstrap_size":"12","header_tag":"h3","header_class":""}' WHERE "#__modules"."id" = 9;
 
 INSERT INTO "#__modules" ("title", "note", "content", "ordering", "position", "checked_out", "checked_out_time", "publish_up", "publish_down", "published", "module", "access", "showtitle", "params", "client_id", "language") VALUES
-('Help Submenu', '', '', 1, 'cpanel-help', 0, NULL, NULL, NULL, 1, 'mod_submenu', 1, 0, '{\"menutype\":\"*\",\"preset\":\"help\",\"layout\":\"_:default\",\"moduleclass_sfx\":\"\",\"style\":\"System-none\",\"module_tag\":\"div\",\"bootstrap_size\":\"0\",\"header_tag\":\"h3\",\"header_class\":\"\"}', 1, '*');
+('Help Submenu', '', '', 1, 'cpanel-help', 0, NULL, NULL, NULL, 1, 'mod_submenu', 1, 0, '{"menutype":"*","preset":"help","layout":"_:default","moduleclass_sfx":"","style":"System-none","module_tag":"div","bootstrap_size":"0","header_tag":"h3","header_class":""}', 1, '*');
 INSERT INTO "#__modules_menu" ("moduleid", "menuid") VALUES (currval(pg_get_serial_sequence('#__modules','id')), 0);
 
 UPDATE "#__modules" SET "ordering" = 2,"position" = 'status' WHERE "#__modules"."id" = 79;
@@ -86,5 +86,5 @@ INSERT INTO "#__modules" ("title", "note", "content", "ordering", "position", "c
 INSERT INTO "#__modules_menu" ("moduleid", "menuid") VALUES (currval(pg_get_serial_sequence('#__modules','id')), 0);
 
 INSERT INTO "#__modules" ("title", "note", "content", "ordering", "position", "checked_out", "checked_out_time", "publish_up", "publish_down", "published", "module", "access", "showtitle", "params", "client_id", "language") VALUES
-('Privacy Status', '', '', 2, 'cpanel-privacy', 0, NULL, NULL, NULL, 1, 'mod_privacy_status', 1, 1, '{"layout":"_:default","moduleclass_sfx":"","cache":1,"cache_time":900,"cachemode":"static","style":"0","module_tag":"div","bootstrap_size":"0","header_tag":"h3","header_class":""}', 1, '*');
+('Privacy Status', '', '', 1, 'cpanel-privacy', 0, NULL, NULL, NULL, 1, 'mod_privacy_status', 1, 1, '{"layout":"_:default","moduleclass_sfx":"","cache":1,"cache_time":900,"cachemode":"static","style":"0","module_tag":"div","bootstrap_size":"0","header_tag":"h3","header_class":""}', 1, '*');
 INSERT INTO "#__modules_menu" ("moduleid", "menuid") VALUES (currval(pg_get_serial_sequence('#__modules','id')), 0);
