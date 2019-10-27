@@ -50,7 +50,7 @@ interface WorkflowServiceInterface
 	 *
 	 * @since   4.0.0
 	 */
-	public static function getConditions($extension): array;
+	public static function getStates($extension): array;
 
 	/**
 	 * Returns a table name for the state association

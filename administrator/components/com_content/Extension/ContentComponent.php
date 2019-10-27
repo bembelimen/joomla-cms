@@ -53,11 +53,11 @@ class ContentComponent extends MVCComponent implements
 	 *
 	 * @since   4.0.0
 	 */
-	const CONDITION_NAMES = [
-		self::CONDITION_PUBLISHED   => 'JPUBLISHED',
-		self::CONDITION_UNPUBLISHED => 'JUNPUBLISHED',
-		self::CONDITION_ARCHIVED    => 'JARCHIVED',
-		self::CONDITION_TRASHED     => 'JTRASHED',
+	const STATE_NAMES = [
+		self::STATE_PUBLISHED   => 'JPUBLISHED',
+		self::STATE_UNPUBLISHED => 'JUNPUBLISHED',
+		self::STATE_ARCHIVED    => 'JARCHIVED',
+		self::STATE_TRASHED     => 'JTRASHED',
 	];
 
 	/**
@@ -65,28 +65,28 @@ class ContentComponent extends MVCComponent implements
 	 *
 	 * @since   4.0.0
 	 */
-	const CONDITION_ARCHIVED = 2;
+	const STATE_ARCHIVED = 2;
 
 	/**
 	 * The published condition
 	 *
 	 * @since   4.0.0
 	 */
-	const CONDITION_PUBLISHED = 1;
+	const STATE_PUBLISHED = 1;
 
 	/**
 	 * The unpublished condition
 	 *
 	 * @since   4.0.0
 	 */
-	const CONDITION_UNPUBLISHED = 0;
+	const STATE_UNPUBLISHED = 0;
 
 	/**
 	 * The trashed condition
 	 *
 	 * @since   4.0.0
 	 */
-	const CONDITION_TRASHED = -2;
+	const STATE_TRASHED = -2;
 
 	/**
 	 * Booting the extension. This is the function to set up the environment of the extension like

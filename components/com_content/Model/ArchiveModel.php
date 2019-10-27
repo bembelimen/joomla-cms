@@ -51,7 +51,7 @@ class ArchiveModel extends ArticlesModel
 		$params = $this->state->get('params');
 
 		// Filter on archived articles
-		$this->setState('filter.condition', ContentComponent::CONDITION_ARCHIVED);
+		$this->setState('filter.condition', ContentComponent::STATE_ARCHIVED);
 
 		// Filter on month, year
 		$this->setState('filter.month', $app->input->getInt('month'));
@@ -199,7 +199,7 @@ class ArchiveModel extends ArticlesModel
 			->from($db->quoteName('#__workflow_stages', 'ws'))
 			->where($db->quoteName('c.id') . ' = ' . $db->quoteName('wa.item_id'))
 			->where($db->quoteName('ws.id') . ' = ' . $db->quoteName('wa.stage_id'))
-			->where($db->quoteName('ws.condition') . '= ' . (int) ContentComponent::CONDITION_ARCHIVED)
+			->where($db->quoteName('ws.condition') . '= ' . (int) ContentComponent::STATE_ARCHIVED)
 			->where('(c.publish_up IS NULL OR c.publish_up <= ' . $nowDate . ')')
 			->where('(c.publish_down IS NULL OR c.publish_down >= ' . $nowDate . ')')
 			->order('1 ASC');

@@ -337,8 +337,8 @@ class ArticlesModel extends ListModel
 				$query->whereIn(
 					$db->quoteName('a.state'),
 					[
-						ContentComponent::CONDITION_PUBLISHED,
-						ContentComponent::CONDITION_UNPUBLISHED
+						ContentComponent::STATE_PUBLISHED,
+						ContentComponent::STATE_UNPUBLISHED
 					]
 				);
 			}
@@ -574,7 +574,7 @@ class ArticlesModel extends ListModel
 					{
 						// @TODO: Benjamin fix
 						// Update the transition text with final state value
-						//$conditionName = $workflow->getConditionName($transition['stage_condition']);
+						//$conditionName = $workflow->getStateName($transition['stage_condition']);
 
 						//$transitions[$key]['text'] .= ' [' . Text::_($conditionName) . ']';
 					}

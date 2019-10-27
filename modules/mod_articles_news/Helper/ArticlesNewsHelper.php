@@ -49,7 +49,7 @@ abstract class ArticlesNewsHelper
 		$model->setState('params', $appParams);
 
 		$model->setState('list.start', 0);
-		$model->setState('filter.condition', ContentComponent::CONDITION_PUBLISHED);
+		$model->setState('filter.condition', ContentComponent::STATE_PUBLISHED);
 
 		// Set the filters based on the module params
 		$model->setState('list.limit', (int) $params->get('count', 5));

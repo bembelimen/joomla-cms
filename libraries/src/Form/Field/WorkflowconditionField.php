@@ -101,7 +101,7 @@ class WorkflowconditionField extends ListField
 
 		if ($component instanceof WorkflowServiceInterface)
 		{
-			$conditions = $component->getConditions($this->extension);
+			$conditions = $component->getStates($this->extension);
 		}
 
 		foreach ($conditions as $value => $option)

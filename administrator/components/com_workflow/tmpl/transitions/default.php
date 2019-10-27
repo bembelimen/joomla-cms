@@ -136,16 +136,16 @@ if ($saveOrder)
 											<?php echo Text::_('JALL'); ?>
 										<?php else : ?>
 											<?php
-											if ($item->from_condition == Workflow::CONDITION_ARCHIVED):
+											if ($item->from_condition == Workflow::STATE_ARCHIVED):
 												$icon = 'icon-archive';
 												$condition = Text::_('JARCHIVED');
-											elseif ($item->from_condition == Workflow::CONDITION_TRASHED):
+											elseif ($item->from_condition == Workflow::STATE_TRASHED):
 												$icon = 'icon-trash';
 												$condition = Text::_('JTRASHED');
-											elseif ($item->from_condition == Workflow::CONDITION_PUBLISHED):
+											elseif ($item->from_condition == Workflow::STATE_PUBLISHED):
 												$icon = 'icon-publish';
 												$condition = Text::_('JPUBLISHED');
-											elseif ($item->from_condition == Workflow::CONDITION_UNPUBLISHED):
+											elseif ($item->from_condition == Workflow::STATE_UNPUBLISHED):
 												$icon = 'icon-unpublish';
 												$condition = Text::_('JUNPUBLISHED');
 											endif; ?>
@@ -155,16 +155,16 @@ if ($saveOrder)
 									</td>
 									<td class="nowrap">
 										<?php
-										if ($item->to_condition == Workflow::CONDITION_ARCHIVED):
+										if ($item->to_condition == Workflow::STATE_ARCHIVED):
 											$icon = 'icon-archive';
 											$condition = Text::_('JARCHIVED');
-										elseif ($item->to_condition == Workflow::CONDITION_TRASHED):
+										elseif ($item->to_condition == Workflow::STATE_TRASHED):
 											$icon = 'icon-trash';
 											$condition = Text::_('JTRASHED');
-										elseif ($item->to_condition == Workflow::CONDITION_PUBLISHED):
+										elseif ($item->to_condition == Workflow::STATE_PUBLISHED):
 											$icon = 'icon-publish';
 											$condition = Text::_('JPUBLISHED');
-										elseif ($item->to_condition == Workflow::CONDITION_UNPUBLISHED):
+										elseif ($item->to_condition == Workflow::STATE_UNPUBLISHED):
 											$icon = 'icon-unpublish';
 											$condition = Text::_('JUNPUBLISHED');
 										endif; ?>

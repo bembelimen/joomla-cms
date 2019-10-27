@@ -124,7 +124,7 @@ class ArticlesModel extends ListModel
 		if ((!$user->authorise('core.edit.state', 'com_content')) && (!$user->authorise('core.edit', 'com_content')))
 		{
 			// Filter on published for those who do not have edit or edit.state rights.
-			$this->setState('filter.condition', ContentComponent::CONDITION_PUBLISHED);
+			$this->setState('filter.condition', ContentComponent::STATE_PUBLISHED);
 		}
 
 		$this->setState('filter.language', Multilanguage::isEnabled());
@@ -204,8 +204,8 @@ class ArticlesModel extends ListModel
 				'a.catid, a.created, a.created_by, a.created_by_alias, ' .
 				// Published/archived article in archive category is treats as archive article
 				// If category is not published then force 0
-				'CASE WHEN c.published = 2 AND ws.condition > 0 THEN ' . (int) ContentComponent::CONDITION_ARCHIVED .
-				' WHEN c.published != 1 THEN ' . (int) ContentComponent::CONDITION_UNPUBLISHED . ' ELSE ws.condition END as state,' .
+				'CASE WHEN c.published = 2 AND ws.condition > 0 THEN ' . (int) ContentComponent::STATE_ARCHIVED .
+				' WHEN c.published != 1 THEN ' . (int) ContentComponent::STATE_UNPUBLISHED . ' ELSE ws.condition END as state,' .
 				'a.modified, a.modified_by, uam.name as modified_by_name,' .
 				// Use created if publish_up is null
 				'CASE WHEN a.publish_up IS NULL THEN a.created ELSE a.publish_up END as publish_up,' .
@@ -285,14 +285,14 @@ class ArticlesModel extends ListModel
 		// Filter by published state
 		$published = $this->getState('filter.published');
 
-		if (is_numeric($published) && $published == ContentComponent::CONDITION_ARCHIVED)
+		if (is_numeric($published) && $published == ContentComponent::STATE_ARCHIVED)
 		{
 			/**
 			 * If category is archived then article has to be published or archived.
 			 * Or categogy is published then article has to be archived.
 			 */
-			$query->where('((c.published = 2 AND a.state > ' . (int) ContentComponent::CONDITION_UNPUBLISHED .
-				') OR (c.published = 1 AND a.state = ' . (int) ContentComponent::CONDITION_ARCHIVED . '))'
+			$query->where('((c.published = 2 AND a.state > ' . (int) ContentComponent::STATE_UNPUBLISHED .
+				') OR (c.published = 1 AND a.state = ' . (int) ContentComponent::STATE_ARCHIVED . '))'
 			);
 		}
 		elseif (is_numeric($published))

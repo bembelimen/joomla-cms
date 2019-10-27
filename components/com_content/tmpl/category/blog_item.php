@@ -29,7 +29,7 @@ $assocParam = (Associations::isEnabled() && $params->get('show_associations'));
 <?php echo LayoutHelper::render('joomla.content.intro_image', $this->item); ?>
 
 <div class="item-content">
-	<?php if ($this->item->stage_condition == ContentComponent::CONDITION_UNPUBLISHED || strtotime($this->item->publish_up) > strtotime(Factory::getDate())
+	<?php if ($this->item->stage_condition == ContentComponent::STATE_UNPUBLISHED || strtotime($this->item->publish_up) > strtotime(Factory::getDate())
 		|| (!is_null($this->item->publish_down) && strtotime($this->item->publish_down) < strtotime(Factory::getDate()))) : ?>
 		<div class="system-unpublished">
 	<?php endif; ?>
@@ -85,7 +85,7 @@ $assocParam = (Associations::isEnabled() && $params->get('show_associations'));
 
 	<?php endif; ?>
 
-	<?php if ($this->item->stage_condition == ContentComponent::CONDITION_UNPUBLISHED || strtotime($this->item->publish_up) > strtotime(Factory::getDate())
+	<?php if ($this->item->stage_condition == ContentComponent::STATE_UNPUBLISHED || strtotime($this->item->publish_up) > strtotime(Factory::getDate())
 		|| (!is_null($this->item->publish_down) && strtotime($this->item->publish_down) < strtotime(Factory::getDate()))) : ?>
 	</div>
 	<?php endif; ?>

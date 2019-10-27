@@ -65,8 +65,8 @@ class ArticleModel extends ItemModel
 
 		if ((!$user->authorise('core.edit.state', $asset)) && (!$user->authorise('core.edit', $asset)))
 		{
-			$this->setState('filter.published', ContentComponent::CONDITION_PUBLISHED);
-			$this->setState('filter.archived', ContentComponent::CONDITION_ARCHIVED);
+			$this->setState('filter.published', ContentComponent::STATE_PUBLISHED);
+			$this->setState('filter.archived', ContentComponent::STATE_ARCHIVED);
 		}
 
 		$this->setState('filter.language', Multilanguage::isEnabled());

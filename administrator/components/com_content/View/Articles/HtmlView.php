@@ -129,19 +129,19 @@ class HtmlView extends BaseHtmlView
 //		{
 //			switch ($transition['stage_condition'])
 //			{
-//				case ContentComponent::CONDITION_PUBLISHED:
+//				case ContentComponent::STATE_PUBLISHED:
 //					$transitions['publish'][$transition['workflow_id']][$transition['from_stage_id']][] = $transition;
 //					break;
 //
-//				case ContentComponent::CONDITION_UNPUBLISHED:
+//				case ContentComponent::STATE_UNPUBLISHED:
 //					$transitions['unpublish'][$transition['workflow_id']][$transition['from_stage_id']][] = $transition;
 //					break;
 //
-//				case ContentComponent::CONDITION_ARCHIVED:
+//				case ContentComponent::STATE_ARCHIVED:
 //					$transitions['archive'][$transition['workflow_id']][$transition['from_stage_id']][] = $transition;
 //					break;
 //
-//				case ContentComponent::CONDITION_TRASHED:
+//				case ContentComponent::STATE_TRASHED:
 //					$transitions['trash'][$transition['workflow_id']][$transition['from_stage_id']][] = $transition;
 //					break;
 //			}
@@ -246,7 +246,7 @@ class HtmlView extends BaseHtmlView
 			}
 		}
 
-		if ($this->state->get('filter.condition') == ContentComponent::CONDITION_TRASHED && $canDo->get('core.delete'))
+		if ($this->state->get('filter.condition') == ContentComponent::STATE_TRASHED && $canDo->get('core.delete'))
 		{
 			$toolbar->delete('articles.delete')
 				->text('JTOOLBAR_EMPTY_TRASH')
