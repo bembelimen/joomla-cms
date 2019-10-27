@@ -53,32 +53,32 @@ class Workflow
 	 *
 	 * @since  4.0.0
 	 */
-	const CONDITION_NAMES = [
-		self::CONDITION_PUBLISHED   => 'JPUBLISHED',
-		self::CONDITION_UNPUBLISHED => 'JUNPUBLISHED',
-		self::CONDITION_TRASHED     => 'JTRASHED',
-		self::CONDITION_ARCHIVED    => 'JARCHIVED',
+	const STATE_NAMES = [
+		self::STATE_PUBLISHED   => 'JPUBLISHED',
+		self::STATE_UNPUBLISHED => 'JUNPUBLISHED',
+		self::STATE_TRASHED     => 'JTRASHED',
+		self::STATE_ARCHIVED    => 'JARCHIVED',
 	];
 
 	/**
 	 * Every item with a state which has the condition PUBLISHED is visible/active on the page
 	 */
-	const CONDITION_PUBLISHED = 1;
+	const STATE_PUBLISHED = 1;
 
 	/**
 	 * Every item with a state which has the condition UNPUBLISHED is not visible/inactive on the page
 	 */
-	const CONDITION_UNPUBLISHED = 0;
+	const STATE_UNPUBLISHED = 0;
 
 	/**
 	 * Every item with a state which has the condition TRASHED is trashed
 	 */
-	const CONDITION_TRASHED = -2;
+	const STATE_TRASHED = -2;
 
 	/**
 	 * Every item with a state which has the condition ARCHIVED is archived
 	 */
-	const CONDITION_ARCHIVED = 2;
+	const STATE_ARCHIVED = 2;
 
 	/**
 	 * Class constructor
@@ -119,7 +119,7 @@ class Workflow
 		}
 		else
 		{
-			$conditions = self::CONDITION_NAMES;
+			$conditions = self::STATE_NAMES;
 		}
 
 		return ArrayHelper::getValue($conditions, $value, '', 'string');

@@ -147,7 +147,7 @@ class Icon
 		}
 
 		// Ignore if the state is negative (trashed).
-		if (!in_array($article->state, [Workflow::CONDITION_UNPUBLISHED, Workflow::CONDITION_PUBLISHED]))
+		if (!in_array($article->state, [Workflow::STATE_UNPUBLISHED, Workflow::STATE_PUBLISHED]))
 		{
 			return;
 		}
@@ -176,7 +176,7 @@ class Icon
 		$contentUrl = \ContentHelperRoute::getArticleRoute($article->slug, $article->catid, $article->language);
 		$url        = $contentUrl . '&task=article.edit&a_id=' . $article->id . '&return=' . base64_encode($uri);
 
-		if ($article->state == Workflow::CONDITION_UNPUBLISHED)
+		if ($article->state == Workflow::STATE_UNPUBLISHED)
 		{
 			$overlib = Text::_('JUNPUBLISHED');
 		}

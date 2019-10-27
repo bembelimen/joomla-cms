@@ -29,7 +29,7 @@ $assocParam = (Associations::isEnabled() && $params->get('show_associations'));
 <?php echo LayoutHelper::render('joomla.content.intro_image', $this->item); ?>
 
 <div class="item-content">
-	<?php if ($this->item->state == Workflow::CONDITION_UNPUBLISHED || strtotime($this->item->publish_up) > strtotime(Factory::getDate())
+	<?php if ($this->item->state == Workflow::STATE_UNPUBLISHED || strtotime($this->item->publish_up) > strtotime(Factory::getDate())
 		|| (!is_null($this->item->publish_down) && strtotime($this->item->publish_down) < strtotime(Factory::getDate()))) : ?>
 		<div class="system-unpublished">
 	<?php endif; ?>
@@ -46,7 +46,7 @@ $assocParam = (Associations::isEnabled() && $params->get('show_associations'));
 		</h2>
 	<?php endif; ?>
 
-	<?php if ($this->item->state == Workflow::CONDITION_UNPUBLISHED) : ?>
+	<?php if ($this->item->state == Workflow::STATE_UNPUBLISHED) : ?>
 		<span class="badge badge-warning"><?php echo Text::_('JUNPUBLISHED'); ?></span>
 	<?php endif; ?>
 	<?php if (strtotime($this->item->publish_up) > strtotime(Factory::getDate())) : ?>
@@ -103,7 +103,7 @@ $assocParam = (Associations::isEnabled() && $params->get('show_associations'));
 
 	<?php endif; ?>
 
-	<?php if ($this->item->state == Workflow::CONDITION_UNPUBLISHED || strtotime($this->item->publish_up) > strtotime(Factory::getDate())
+	<?php if ($this->item->state == Workflow::STATE_UNPUBLISHED || strtotime($this->item->publish_up) > strtotime(Factory::getDate())
 		|| (!is_null($this->item->publish_down) && strtotime($this->item->publish_down) < strtotime(Factory::getDate()))) : ?>
 		</div>
 	<?php endif; ?>

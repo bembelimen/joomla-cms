@@ -195,8 +195,8 @@ class FeaturedModel extends ArticlesModel
 				$query->whereIn(
 					$db->quoteName('ws.condition'),
 					[
-						ContentComponent::CONDITION_PUBLISHED,
-						ContentComponent::CONDITION_UNPUBLISHED
+						ContentComponent::STATE_PUBLISHED,
+						ContentComponent::STATE_UNPUBLISHED
 					]
 				);
 			}

@@ -269,7 +269,7 @@ class ArticleModel extends AdminModel
 	 */
 	protected function canDelete($record)
 	{
-		if (!empty($record->id) && $record->state == ContentComponent::CONDITION_TRASHED)
+		if (!empty($record->id) && $record->state == ContentComponent::STATE_TRASHED)
 		{
 			return Factory::getUser()->authorise('core.delete', 'com_content.article.' . (int) $record->id);
 		}
@@ -318,12 +318,12 @@ class ArticleModel extends AdminModel
 	protected function prepareTable($table)
 	{
 		// Set the publish date to now
-		if ($table->state == ContentComponent::CONDITION_PUBLISHED && (int) $table->publish_up == 0)
+		if ($table->state == ContentComponent::STATE_PUBLISHED && (int) $table->publish_up == 0)
 		{
 			$table->publish_up = Factory::getDate()->toSql();
 		}
 
-		if ($table->state == ContentComponent::CONDITION_PUBLISHED && intval($table->publish_down) == 0)
+		if ($table->state == ContentComponent::STATE_PUBLISHED && intval($table->publish_down) == 0)
 		{
 			$table->publish_down = null;
 		}
@@ -787,7 +787,7 @@ class ArticleModel extends AdminModel
 			$table['parent_id'] = 1;
 			$table['extension'] = 'com_content';
 			$table['language'] = $data['language'];
-			$table['published'] = ContentComponent::CONDITION_PUBLISHED;
+			$table['published'] = ContentComponent::STATE_PUBLISHED;
 
 			// Create new category and get catid back
 			$data['catid'] = CategoriesHelper::createCategory($table);

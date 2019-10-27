@@ -113,23 +113,23 @@ class WorkflowModel extends AdminModel
 			$stages = [
 				[
 					'title' => 'JUNPUBLISHED',
-					'condition' => Workflow::CONDITION_UNPUBLISHED,
+					'condition' => Workflow::STATE_UNPUBLISHED,
 					'default' => 1,
 					'transition' => 'Unpublish'
 				],
 				[
 					'title' => 'JPUBLISHED',
-					'condition' => Workflow::CONDITION_PUBLISHED,
+					'condition' => Workflow::STATE_PUBLISHED,
 					'transition' => 'Publish'
 				],
 				[
 					'title' => 'JTRASHED',
-					'condition' => Workflow::CONDITION_TRASHED,
+					'condition' => Workflow::STATE_TRASHED,
 					'transition' => 'Trash'
 				],
 				[
 					'title' => 'JARCHIVED',
-					'condition' => Workflow::CONDITION_ARCHIVED,
+					'condition' => Workflow::STATE_ARCHIVED,
 					'transition' => 'Archive'
 				]
 			];

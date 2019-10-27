@@ -337,8 +337,8 @@ class ArticlesModel extends ListModel
 				$query->whereIn(
 					$db->quoteName('a.state'),
 					[
-						ContentComponent::CONDITION_PUBLISHED,
-						ContentComponent::CONDITION_UNPUBLISHED
+						ContentComponent::STATE_PUBLISHED,
+						ContentComponent::STATE_UNPUBLISHED
 					]
 				);
 			}

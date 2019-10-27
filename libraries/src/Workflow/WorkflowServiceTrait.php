@@ -28,6 +28,6 @@ trait WorkflowServiceTrait
 	 */
 	public static function getConditions($extension): array
 	{
-		return \defined('self::CONDITION_NAMES') ? self::CONDITION_NAMES : Workflow::CONDITION_NAMES;
+		return \defined('self::STATE_NAMES') ? self::STATE_NAMES : Workflow::STATE_NAMES;
 	}
 }

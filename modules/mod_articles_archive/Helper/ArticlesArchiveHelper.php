@@ -38,7 +38,7 @@ class ArticlesArchiveHelper
 	{
 		$app       = Factory::getApplication();
 		$db        = Factory::getDbo();
-		$condition = ContentComponent::CONDITION_ARCHIVED;
+		$condition = ContentComponent::STATE_ARCHIVED;
 		$query     = $db->getQuery(true);
 
 		$query->select($query->month($db->quoteName('created')) . ' AS created_month')

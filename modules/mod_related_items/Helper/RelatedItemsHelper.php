@@ -40,7 +40,7 @@ abstract class RelatedItemsHelper
 		$groups    = Factory::getUser()->getAuthorisedViewLevels();
 		$maximum   = (int) $params->get('maximum', 5);
 		$factory   = $app->bootComponent('com_content')->getMVCFactory();
-		$condition = ContentComponent::CONDITION_PUBLISHED;
+		$condition = ContentComponent::STATE_PUBLISHED;
 
 		// Get an instance of the generic articles model
 		/** @var \Joomla\Component\Content\Site\Model\ArticlesModel $articles */

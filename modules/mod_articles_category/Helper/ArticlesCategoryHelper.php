@@ -51,7 +51,7 @@ abstract class ArticlesCategoryHelper
 		$articles->setState('params', $appParams);
 
 		$articles->setState('list.start', 0);
-		$articles->setState('filter.condition', ContentComponent::CONDITION_PUBLISHED);
+		$articles->setState('filter.condition', ContentComponent::STATE_PUBLISHED);
 
 		// Set the filters based on the module params
 		$articles->setState('list.limit', (int) $params->get('count', 0));
