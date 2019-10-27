@@ -31,15 +31,6 @@
 		</field>
 
 		<field
-			name="condition"
-			type="workflowcondition"
-			onchange="this.form.submit();"
-			extension="com_content"
-			>
-			<option value="">JOPTION_SELECT_CONDITION</option>
-		</field>
-
-		<field
 			name="category_id"
 			type="category"
 			label="JOPTION_SELECT_CATEGORY"
