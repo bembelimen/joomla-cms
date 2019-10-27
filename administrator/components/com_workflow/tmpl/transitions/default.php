@@ -150,7 +150,6 @@ if ($saveOrder)
 												$condition = Text::_('JUNPUBLISHED');
 											endif; ?>
 											<span class="<?php echo $icon; ?>" aria-hidden="true"></span>
-											<span class="sr-only"><?php echo Text::_('COM_WORKFLOW_CONDITION') . $condition; ?></span>
 											<?php echo ' ' . $this->escape(Text::_($item->from_stage)); ?>
 										<?php endif; ?>
 									</td>
@@ -170,7 +169,6 @@ if ($saveOrder)
 											$condition = Text::_('JUNPUBLISHED');
 										endif; ?>
 										<span class="<?php echo $icon; ?>" aria-hidden="true"></span>
-										<span class="sr-only"><?php echo Text::_('COM_WORKFLOW_CONDITION') . $condition; ?></span>
 										<?php echo ' ' . $this->escape(Text::_($item->to_stage)); ?>
 									</td>
 									<td class="d-none d-md-table-cell">

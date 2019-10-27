@@ -107,7 +107,7 @@ class TransitionField extends ListField
 		$workflowStage = $this->workflowStage;
 
 		$query = $db->getQuery(true)
-			->select($db->quoteName(['t.id', 't.title', 's.condition'], ['value', 'text', 'condition']))
+			->select($db->quoteName(['t.id', 't.title'], ['value', 'text']))
 			->from($db->quoteName('#__workflow_transitions', 't'))
 			->from($db->quoteName('#__workflow_stages', 's'))
 			->from($db->quoteName('#__workflow_stages', 's2'))
@@ -133,20 +133,6 @@ class TransitionField extends ListField
 					return $user->authorise('core.execute.transition', $extension . '.transition.' . $item->value);
 				}
 			);
-
-			// Sort by transition name
-			$items = ArrayHelper::sortObjects($items, 'value', 1, true, true);
-
-			Factory::getLanguage()->load('com_workflow', JPATH_ADMINISTRATOR);
-
-			$workflow = new Workflow(['extension' => $this->extension]);
-
-			foreach ($items as $item)
-			{
-				$conditionName = $workflow->getConditionName($item->condition);
-
-				$item->text .= ' [' . Text::_($conditionName) . ']';
-			}
 		}
 
 		// Get workflow stage title

@@ -130,18 +130,6 @@ class HtmlView extends BaseHtmlView
 		WorkflowHelper::addSubmenu('stages');
 
 		$this->sidebar       = \JHtmlSidebar::render();
-
-		if (!empty($this->stages))
-		{
-			$extension = Factory::getApplication()->input->getCmd('extension');
-			$workflow  = new Workflow(['extension' => $extension]);
-
-			foreach ($this->stages as $i => $item)
-			{
-				$item->condition = $workflow->getConditionName($item->condition);
-			}
-		}
-
 		$this->addToolbar();
 
 		return parent::display($tpl);
