@@ -44,13 +44,13 @@ interface WorkflowServiceInterface
 	/**
 	 * Returns an array of possible conditions for the component.
 	 *
-	 * @param   string  $extension  Full extension string
+	 * @param   string  $section  Optional section for the component
 	 *
 	 * @return  array
 	 *
 	 * @since   4.0.0
 	 */
-	public static function getConditions($extension): array;
+	public static function getConditions($section = null): array;
 
 	/**
 	 * Returns a table name for the state association

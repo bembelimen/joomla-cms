@@ -8,13 +8,9 @@
 			<field
 				label="PLG_WORKFLOW_PUBLISHING_FIELD_PUBLISHING_LABEL"
 				name="publishing"
-				type="list"
+				type="workflow.publishing"
 			>
 				<option value="">JNO</option>
-				<option value="1">PLG_WORKFLOW_PUBLISHING_FIELD_PUBLISHING_OPTION_PUBLISH_ITEM</option>
-				<option value="0">PLG_WORKFLOW_PUBLISHING_FIELD_PUBLISHING_OPTION_UNPUBLISH_ITEM</option>
-				<option value="2">PLG_WORKFLOW_PUBLISHING_FIELD_PUBLISHING_OPTION_ARCHIVE_ITEM</option>
-				<option value="-2">PLG_WORKFLOW_PUBLISHING_FIELD_PUBLISHING_OPTION_TRASH_ITEM</option>
 			</field>
 		</fieldset>
 	</fields>
