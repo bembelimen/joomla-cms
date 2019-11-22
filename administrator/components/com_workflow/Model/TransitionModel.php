@@ -14,6 +14,8 @@ defined('_JEXEC') or die;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Model\AdminModel;
+use Joomla\CMS\Object\CMSObject;
+use Joomla\Registry\Registry;
 use Joomla\String\StringHelper;
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\Plugin\PluginHelper;
@@ -82,7 +84,6 @@ class TransitionModel extends AdminModel
 	 */
 	protected function canEditState($record)
 	{
-		$user = Factory::getUser();
 		$app = Factory::getApplication();
 		$extension = $app->getUserStateFromRequest('com_workflow.transition.filter.extension', 'extension', null, 'cmd');
 
@@ -94,6 +95,8 @@ class TransitionModel extends AdminModel
 		{
 			return false;
 		}
+
+		$user = $app->getIdentity();
 
 		// Check for existing workflow.
 		if (!empty($record->id))
@@ -210,7 +213,7 @@ class TransitionModel extends AdminModel
 	 * @param   array    $data      Data for the form.
 	 * @param   boolean  $loadData  True if the form is to load its own data (default case), false if not.
 	 *
-	 * @return \JForm|boolean  A JForm object on success, false on failure
+	 * @return  Form|boolean  A JForm object on success, false on failure
 	 *
 	 * @since  4.0.0
 	 */
@@ -233,10 +236,10 @@ class TransitionModel extends AdminModel
 
 		if ($loadData)
 		{
-			$data = (object) $this->loadFormData();
+			$data = $this->loadFormData();
 		}
 
-		if (!$this->canEditState($data))
+		if (!$this->canEditState((object) $data))
 		{
 			// Disable fields for display.
 			$form->setFieldAttribute('published', 'disabled', 'true');
@@ -254,6 +257,7 @@ class TransitionModel extends AdminModel
 
 		$form->setFieldAttribute('from_stage_id', 'sql_where', $where);
 		$form->setFieldAttribute('to_stage_id', 'sql_where', $where);
+		$form->setValue('workflow_id', '', $workflow_id);
 
 		return $form;
 	}
@@ -282,7 +286,29 @@ class TransitionModel extends AdminModel
 	}
 
 	/**
-	 * Method to allow derived classes to preprocess the form.
+	 * Method to get a single record.
+	 *
+	 * @param   integer  $pk  The id of the primary key.
+	 *
+	 * @return  CMSObject|boolean  Object on success, false on failure.
+	 *
+	 * @since   1.6
+	 */
+	public function getItem($pk = null)
+	{
+		$item = parent::getItem($pk);
+
+		if ($item && property_exists($item, 'options'))
+		{
+			$registry = new Registry($item->options);
+			$item->options = $registry->toArray();
+		}
+
+		return $item;
+	}
+
+	/**
+	 * Method to allow derived classes to preprocess the form. Overridden to specify the plugin group.
 	 *
 	 * @param   Form    $form   A Form object.
 	 * @param   mixed   $data   The data expected for the form.
@@ -294,11 +320,8 @@ class TransitionModel extends AdminModel
 	 * @since   4.0.0
 	 * @throws  \Exception if there is an error in the form event.
 	 */
-	protected function preprocessForm(Form $form, $data, $group = 'content')
+	protected function preprocessForm(Form $form, $data, $group = 'workflow')
 	{
-		// Import the appropriate plugin group.
-		PluginHelper::importPlugin('workflow');
-
 		parent::preprocessForm($form, $data, $group);
 	}
 }

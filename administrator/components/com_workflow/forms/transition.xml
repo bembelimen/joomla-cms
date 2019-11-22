@@ -45,27 +45,22 @@
 		rows="3"
 		cols="60"
 	/>
-		<field
-			name="published"
-			type="list"
-			label="COM_WORKFLOW_PUBLISHED_LABEL"
-			required="true"
-			class="custom-select-color-state"
-			default="1"
-			>
-			<option value="1">JENABLED</option>
-			<option value="0">JDISABLED</option>
-			<option value="-2">JTRASHED</option>
-		</field>
-
-	<fieldset name="options" label="COM_WORKFLOW_OPTIONS_LABEL">
-
-		<fields name="options">
-
-		</fields>
-
-	</fieldset>
-
+	<field
+		name="workflow_id"
+		type="hidden"
+	/>
+	<field
+		name="published"
+		type="list"
+		label="COM_WORKFLOW_PUBLISHED_LABEL"
+		required="true"
+		class="custom-select-color-state"
+		default="1"
+		>
+		<option value="1">JENABLED</option>
+		<option value="0">JDISABLED</option>
+		<option value="-2">JTRASHED</option>
+	</field>
 	<field
 		name="asset_id"
 		type="hidden"

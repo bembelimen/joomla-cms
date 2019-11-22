@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form>
-	<fieldset name="options">
-		<fieldset name="publishing">
-			<fields name="options">
-				<field
-					label="PLG_WORKFLOW_PUBLISHING_FIELD_PUBLISHING_LABEL"
-					name="publishing"
-					type="list"
-				>
-					<option value="">JNO</option>
-					<option value="1">PLG_WORKFLOW_PUBLISHING_FIELD_PUBLISHING_OPTION_PUBLISH_ITEM</option>
-					<option value="0">PLG_WORKFLOW_PUBLISHING_FIELD_PUBLISHING_OPTION_UNPUBLISH_ITEM</option>
-					<option value="2">PLG_WORKFLOW_PUBLISHING_FIELD_PUBLISHING_OPTION_ARCHIVE_ITEM</option>
-					<option value="-2">PLG_WORKFLOW_PUBLISHING_FIELD_PUBLISHING_OPTION_TRASH_ITEM</option>
-				</field>
-			</fields>
+	<fields name="options">
+		<fieldset
+			name="publishing"
+			label="Publishing"
+		>
+			<field
+				label="PLG_WORKFLOW_PUBLISHING_FIELD_PUBLISHING_LABEL"
+				name="publishing"
+				type="list"
+			>
+				<option value="">JNO</option>
+				<option value="1">PLG_WORKFLOW_PUBLISHING_FIELD_PUBLISHING_OPTION_PUBLISH_ITEM</option>
+				<option value="0">PLG_WORKFLOW_PUBLISHING_FIELD_PUBLISHING_OPTION_UNPUBLISH_ITEM</option>
+				<option value="2">PLG_WORKFLOW_PUBLISHING_FIELD_PUBLISHING_OPTION_ARCHIVE_ITEM</option>
+				<option value="-2">PLG_WORKFLOW_PUBLISHING_FIELD_PUBLISHING_OPTION_TRASH_ITEM</option>
+			</field>
 		</fieldset>
-	</fieldset>
+	</fields>
 </form>

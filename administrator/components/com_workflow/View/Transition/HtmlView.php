@@ -10,7 +10,9 @@ namespace Joomla\Component\Workflow\Administrator\View\Transition;
 
 defined('_JEXEC') or die;
 
+use Joomla\CMS\Application\CMSApplicationInterface;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Form\Form;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\View\GenericDataException;
 use Joomla\CMS\MVC\View\HtmlView as BaseHtmlView;
@@ -35,7 +37,7 @@ class HtmlView extends BaseHtmlView
 	/**
 	 * From object to generate fields
 	 *
-	 * @var     \JForm
+	 * @var    Form
 	 * @since  4.0.0
 	 */
 	protected $form;
@@ -43,31 +45,23 @@ class HtmlView extends BaseHtmlView
 	/**
 	 * Items array
 	 *
-	 * @var     object
+	 * @var    object
 	 * @since  4.0.0
 	 */
 	protected $item;
 
 	/**
-	 * That is object of Application
+	 * The extension that the workflow will be used on
 	 *
-	 * @var     CMSApplication
+	 * @var    string
 	 * @since  4.0.0
 	 */
-	protected $app;
-
-	/**
-	 * The application input object.
-	 *
-	 * @var    Input
-	 * @since  4.0.0
-	 */
-	protected $input;
+	protected $extension;
 
 	/**
 	 * The ID of current workflow
 	 *
-	 * @var    Integer
+	 * @var    integer
 	 * @since  4.0.0
 	 */
 	protected $workflowID;
@@ -75,7 +69,7 @@ class HtmlView extends BaseHtmlView
 	/**
 	 * Use core ui in different layouts
 	 *
-	 * @var   Integer
+	 * @var   integer
 	 * @since 4.0.0
 	 */
 	protected $useCoreUI = true;
@@ -97,8 +91,7 @@ class HtmlView extends BaseHtmlView
 			throw new GenericDataException(implode("\n", $errors), 500);
 		}
 
-		$this->app = Factory::getApplication();
-		$this->input = $this->app->input;
+		$app   = Factory::getApplication();
 
 		// Get the Data
 		$this->state      = $this->get('State');
@@ -107,10 +100,10 @@ class HtmlView extends BaseHtmlView
 		$this->extension  = $this->state->get('filter.extension');
 
 		// Get the ID of workflow
-		$this->workflowID = $this->input->getCmd("workflow_id");
+		$this->workflowID = $app->input->getCmd("workflow_id");
 
 		// Set the toolbar
-		$this->addToolBar();
+		$this->addToolBar($app);
 
 		// Display the template
 		parent::display($tpl);
@@ -119,15 +112,17 @@ class HtmlView extends BaseHtmlView
 	/**
 	 * Add the page title and toolbar.
 	 *
+	 * @param   CMSApplicationInterface  $app  The Application object
+	 *
 	 * @return  void
 	 *
 	 * @since  4.0.0
 	 */
-	protected function addToolbar()
+	protected function addToolbar($app)
 	{
-		Factory::getApplication()->input->set('hidemainmenu', true);
+		$app->input->set('hidemainmenu', true);
 
-		$user       = Factory::getUser();
+		$user       = $app->getIdentity();
 		$userId     = $user->id;
 		$isNew      = empty($this->item->id);
 

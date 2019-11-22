@@ -23,6 +23,14 @@ use Joomla\Database\DatabaseDriver;
 class TransitionTable extends Table
 {
 	/**
+	 * An array of key names to be json encoded in the bind function
+	 *
+	 * @var    array
+	 * @since  __DEPLOY_VERSION__
+	 */
+	protected $_jsonEncode = ['options'];
+
+	/**
 	 * Indicates that columns fully support the NULL value in the database
 	 *
 	 * @var    boolean
@@ -33,7 +41,7 @@ class TransitionTable extends Table
 	/**
 	 * Constructor
 	 *
-	 * @param   \JDatabaseDriver  $db  Database connector object
+	 * @param   DatabaseDriver  $db  Database connector object
 	 *
 	 * @since  4.0.0
 	 */
