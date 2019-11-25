@@ -1362,6 +1362,7 @@ class ArticleModel extends AdminModel
 		$workflow = new Workflow('com_content');
 
 		// Include the plugins for the change of state event.
+		// TODO: Is this the right place to import workflow plugins - potentially better in the executeTransition method
 		PluginHelper::importPlugin('workflow');
 		PluginHelper::importPlugin($this->events_map['change_state']);
 
