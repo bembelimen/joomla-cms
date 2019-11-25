@@ -149,7 +149,7 @@ class ArticleModel extends AdminModel
 			return false;
 		}
 
-		$workflow = new Workflow(['extension' => 'com_content']);
+		$workflow = new Workflow('com_content');
 
 		// Update content state value and workflow associations
 		return $workflow->updateAssociations($pks, $value);
@@ -562,7 +562,7 @@ class ArticleModel extends AdminModel
 
 			if ($table->load(array('id' => $id)))
 			{
-				$workflow = new Workflow(['extension' => 'com_content']);
+				$workflow = new Workflow('com_content');
 
 				// Transition field
 				$assoc = $workflow->getAssociation($table->id);
@@ -931,7 +931,7 @@ class ArticleModel extends AdminModel
 			}
 		}
 
-		$workflow = new Workflow(['extension' => 'com_content']);
+		$workflow = new Workflow('com_content');
 
 		if (parent::save($data))
 		{
@@ -1238,7 +1238,7 @@ class ArticleModel extends AdminModel
 			$db->setQuery($query);
 			$db->execute();
 
-			$workflow = new Workflow(['extension' => 'com_content']);
+			$workflow = new Workflow('com_content');
 
 			$workflow->deleteAssociation($pks);
 		}
@@ -1350,18 +1350,30 @@ class ArticleModel extends AdminModel
 	/**
 	 * Runs transition for item.
 	 *
-	 * @param   integer  $pk             Id of article
-	 * @param   integer  $transition_id  Id of transition
+	 * @param   integer  $pk            Id of article
+	 * @param   integer  $transitionId  Id of transition
 	 *
 	 * @return  boolean
 	 *
 	 * @since   4.0.0
 	 */
-	public function runTransition($pk, $transition_id)
+	public function runTransition($pk, $transitionId)
 	{
-		$workflow = new Workflow(['extension' => 'com_content']);
+		$workflow = new Workflow('com_content');
 
-		$runTransaction = $workflow->executeTransition($pk, $transition_id);
+		// Include the plugins for the change of state event.
+		PluginHelper::importPlugin('workflow');
+		PluginHelper::importPlugin($this->events_map['change_state']);
+
+		// B/C state change trigger for UCM
+		$context = $this->option . '.' . $this->name;
+
+		$publishingOptions = [
+			'context' => $context,
+			'changeStateEvent' => $this->event_change_state,
+		];
+
+		$runTransaction = $workflow->executeTransition($pk, $transitionId, ['publishing' => $publishingOptions]);
 
 		if (!$runTransaction)
 		{
@@ -1369,15 +1381,6 @@ class ArticleModel extends AdminModel
 
 			return false;
 		}
-
-		// B/C state change trigger for UCM
-		$context = $this->option . '.' . $this->name;
-
-		// Include the plugins for the change of stage event.
-		PluginHelper::importPlugin($this->events_map['change_state']);
-
-		// Trigger the change stage event.
-		Factory::getApplication()->triggerEvent($this->event_change_state, [$context, [$pk], $workflow->getConditionForTransition($transition_id)]);
 
 		return true;
 	}

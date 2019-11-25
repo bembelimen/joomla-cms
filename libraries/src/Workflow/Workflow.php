@@ -37,13 +37,6 @@ class Workflow
 	protected $extension = null;
 
 	/**
-	 * Workflow options
-	 *
-	 * @var array
-	 */
-	protected $options = [];
-
-	/**
 	 * @var \Joomla\Database\DatabaseDriver
 	 */
 	protected $db;
@@ -83,21 +76,14 @@ class Workflow
 	/**
 	 * Class constructor
 	 *
-	 * @param   array  $options  Array of options
+	 * @param   string  $extension  The extension the workflow is operating on (including optional
+	 *                              dot separated extension)
 	 *
 	 * @since   4.0.0
 	 */
-	public function __construct($options)
+	public function __construct($extension)
 	{
-		// Required options
-		$this->extension  = $options['extension'];
-
-		// Default some optional options
-		$this->options['access']      = 'true';
-		$this->options['published']   = 1;
-		$this->options['countItems']  = 0;
-
-		$this->setOptions($options);
+		$this->extension  = $extension;
 	}
 
 	/**
@@ -147,12 +133,13 @@ class Workflow
 	/**
 	 * Executes a transition to change the current state in the association table
 	 *
-	 * @param   array|int  $pks            The item IDs, which should use the transition
-	 * @param   int        $transition_id  The transition which should be executed
+	 * @param   array|int  $pks           The item IDs, which should use the transition
+	 * @param   int        $transitionId  The transition which should be executed
+	 * @param   array      $options       An array of options to pass into plugin events
 	 *
 	 * @return  boolean
 	 */
-	public function executeTransition($pks, $transition_id)
+	public function executeTransition($pks, $transitionId, $options = [])
 	{
 		if (!\is_array($pks))
 		{
@@ -175,19 +162,15 @@ class Workflow
 				't.id',
 				't.to_stage_id',
 				't.from_stage_id',
-				's.condition',
+				't.options',
 			]
 		);
 
 		$query->select($select)
 			->from($db->quoteName('#__workflow_transitions', 't'))
 			->leftJoin($db->quoteName('#__workflow_stages', 's') . ' ON ' . $db->quoteName('s.id') . ' = ' . $db->quoteName('t.to_stage_id'))
-			->where($db->quoteName('t.id') . ' = ' . (int) $transition_id);
-
-		if (!empty($this->options['published']))
-		{
-			$query->where($db->quoteName('t.published') . ' = 1');
-		}
+			->where($db->quoteName('t.id') . ' = ' . (int) $transitionId)
+			->where($db->quoteName('t.published') . ' = 1');
 
 		$transition = $db->setQuery($query)->loadObject();
 
@@ -211,6 +194,7 @@ class Workflow
 				'extension' => $this->extension,
 				'user' => $app->getIdentity(),
 				'transition' => $transition,
+				'options' => $options,
 			]
 		);
 
@@ -230,6 +214,7 @@ class Workflow
 					'extension' => $this->extension,
 					'user' => $app->getIdentity(),
 					'transition' => $transition,
+					'options' => $options,
 				]
 			);
 		}
@@ -331,7 +316,7 @@ class Workflow
 	/**
 	 * Removes associations form the workflow_associations table
 	 *
-	 * @param   int  $pks  ID of content
+	 * @param   array  $pks  ID of content
 	 *
 	 * @return  boolean
 	 *
@@ -389,32 +374,5 @@ class Workflow
 			->where($db->quoteName('extension') . ' = ' . $db->quote($this->extension));
 
 		return $db->setQuery($query)->loadObject();
-	}
-
-	/**
-	 * Allows to set some optional options, eg. if the access level should be considered.
-	 *
-	 * @param   array  $options  The new options
-	 *
-	 * @return  void
-	 *
-	 * @since  4.0.0
-	 */
-	public function setOptions(array $options)
-	{
-		if (isset($options['access']))
-		{
-			$this->options['access'] = $options['access'];
-		}
-
-		if (isset($options['published']))
-		{
-			$this->options['published'] = $options['published'];
-		}
-
-		if (isset($options['countItems']))
-		{
-			$this->options['countItems'] = $options['countItems'];
-		}
 	}
 }

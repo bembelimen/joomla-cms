@@ -568,7 +568,7 @@ class ArticlesModel extends ListModel
 
 				$transitions = $db->setQuery($query)->loadAssocList();
 
-				$workflow = new Workflow(['extension' => 'com_content']);
+				$workflow = new Workflow('com_content');
 
 				foreach ($transitions as $key => $transition)
 				{

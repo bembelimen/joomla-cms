@@ -9,8 +9,11 @@
 
 defined('_JEXEC') or die;
 
+use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Form\Form;
+use Joomla\CMS\User\User;
+use Joomla\CMS\Workflow\WorkflowServiceInterface;
 
 /**
  * Publishing handling for workflow items
@@ -19,6 +22,14 @@ use Joomla\CMS\Form\Form;
  */
 class PlgWorkflowPublishing extends CMSPlugin
 {
+	/**
+	 * The Application Object
+	 *
+	 * @var    CMSApplication
+	 * @since  __DEPLOY_VERSION__
+	 */
+	protected $app;
+
 	/**
 	 * Load the language file on instantiation.
 	 *
@@ -77,5 +88,42 @@ class PlgWorkflowPublishing extends CMSPlugin
 		Form::addFormPath(__DIR__ . '/forms');
 
 		$form->loadFile('publishing');
+	}
+
+	/**
+	 * Updates the content state of the content item after a workflow is transitioned.
+	 *
+	 * @param   integer[]  $pks         The primary keys.
+	 * @param   string     $extension   The extension being altered.
+	 * @param   User       $user        The user making the transition.
+	 * @param   object     $transition  The extension being altered.
+	 * @param   \stdClass  $options     The options for the plugin event.
+	 *
+	 * @return  void
+	 *
+	 * @since   __DEPLOY_VERSION__
+	 */
+	public function onWorkflowAfterTransition($pks, $extension, $user, $transition, $options)
+	{
+		$extensionOptions = json_decode($transition->options, true);
+
+		if (isset($extensionOptions['publishing']))
+		{
+			$extensionInterface = $this->app->bootComponent($extension);
+
+			if ($extensionInterface instanceof WorkflowServiceInterface)
+			{
+				$extensionInterface->updateContentState($pks, $extensionOptions['publishing']);
+
+				if (isset($options['publishing']['changeStateEvent']))
+				{
+					// Trigger the change stage event.
+					$this->app->triggerEvent(
+						$options['publishing']['changeStateEvent'],
+						[$options['publishing']['context'], $pks, $extensionOptions['publishing']]
+					);
+				}
+			}
+		}
 	}
 }

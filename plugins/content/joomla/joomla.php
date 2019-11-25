@@ -648,7 +648,7 @@ class PlgContentJoomla extends CMSPlugin
 
 		$article = new ArticleTable($db);
 
-		$workflow = new Workflow(['extension' => 'com_content']);
+		$workflow = new Workflow('com_content');
 
 		foreach ($pks as $pk)
 		{
@@ -703,9 +703,10 @@ class PlgContentJoomla extends CMSPlugin
 						'message' => sprintf($lang->_('PLG_CONTENT_JOOMLA_ON_STAGE_CHANGE_MSG'), $user->name, $article->title),
 					);
 
-					$model_message = $this->app->bootComponent('com_messages')
+					/** @var \Joomla\Component\Messages\Administrator\Model\MessageModel $modelMessage */
+					$modelMessage = $this->app->bootComponent('com_messages')
 						->getMVCFactory()->createModel('Message', 'Administrator');
-					$model_message->save($message);
+					$modelMessage->save($message);
 				}
 			}
 		}
