@@ -35,7 +35,7 @@ trait WorkflowBehaviorTrait {
 	 *
 	 * @param   string  $extension  The option and section separated by .
 	 */
-	protected function setUpWorkflow($extension) {
+	public function setUpWorkflow($extension) {
 
 		$this->extension = $extension;
 	}
@@ -52,7 +52,7 @@ trait WorkflowBehaviorTrait {
 	 * @since   4.0.0
 	 * @see     FormField
 	 */
-	protected function preprocessFormWorkflow(Form $form, $data) {
+	public function preprocessFormWorkflow(Form $form, $data) {
 
 		// Import the appropriate plugin group.
 		PluginHelper::importPlugin('workflow');
@@ -69,7 +69,7 @@ trait WorkflowBehaviorTrait {
 	 *
 	 * @since   4.0.0
 	 */
-	protected function batchWorkflowStage(int $value, array $pks, array $contexts) {
+	public function batchWorkflowStage(int $value, array $pks, array $contexts) {
 
 		$user = Factory::getApplication()->getIdentity();
 		/** @var  $workflow */
