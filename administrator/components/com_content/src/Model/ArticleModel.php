@@ -11,6 +11,7 @@ namespace Joomla\Component\Content\Administrator\Model;
 
 defined('_JEXEC') or die;
 
+use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\Helper\TagsHelper;
@@ -1274,6 +1275,11 @@ class ArticleModel extends AdminModel
 			}
 		}
 
+		if (ComponentHelper::getParams('com_content')->get('workflows_enable', 1))
+		{
+			PluginHelper::importPlugin('workflow');
+		}
+
 		parent::preprocessForm($form, $data, $group);
 	}
 
@@ -1403,7 +1409,6 @@ class ArticleModel extends AdminModel
 			$query->select(
 				[
 					$db->quoteName('w.id'),
-					$db->quoteName('ws.condition'),
 					$db->quoteName('ws.id', 'stage_id'),
 				]
 			)
@@ -1438,7 +1443,6 @@ class ArticleModel extends AdminModel
 		$query->select(
 			[
 				$db->quoteName('w.id'),
-				$db->quoteName('ws.condition'),
 				$db->quoteName('ws.id', 'stage_id'),
 			]
 		)
