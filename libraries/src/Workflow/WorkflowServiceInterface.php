@@ -15,8 +15,19 @@ namespace Joomla\CMS\Workflow;
  *
  * @since  4.0.0
  */
-interface WorkflowServiceInterface
-{
+interface WorkflowServiceInterface {
+	/**
+	 * Check if the functionality is supported by the context
+	 *
+	 * @param   string  $feature  The functionality
+	 * @param   string  $context  The context of the functionality
+	 *
+	 * @return bool
+	 *
+	 * @since  4.0.0
+	 */
+	public function supportFunctionality($functionality, $context): bool;
+
 	/**
 	 * Method to filter transitions by given id of state.
 	 *
@@ -28,18 +39,6 @@ interface WorkflowServiceInterface
 	 * @since  4.0.0
 	 */
 	public function filterTransitions(array $transitions, int $pk): array;
-
-	/**
-	 * Method to change state of multiple ids
-	 *
-	 * @param   array    $pks        Array of IDs
-	 * @param   integer  $condition  Condition of the workflow state
-	 *
-	 * @return  boolean
-	 *
-	 * @since   4.0.0
-	 */
-	public static function updateContentState(array $pks, int $condition): bool;
 
 	/**
 	 * Returns an array of possible conditions for the component.
