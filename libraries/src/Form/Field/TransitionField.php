@@ -112,7 +112,6 @@ class TransitionField extends ListField
 				[
 					$db->quoteName('t.id', 'value'),
 					$db->quoteName('t.title', 'text'),
-					$db->quoteName('s.condition'),
 				]
 			)
 			->from(
@@ -157,13 +156,6 @@ class TransitionField extends ListField
 			Factory::getLanguage()->load('com_workflow', JPATH_ADMINISTRATOR);
 
 			$workflow = new Workflow(['extension' => $this->extension]);
-
-			foreach ($items as $item)
-			{
-				$conditionName = $workflow->getConditionName((int) $item->condition);
-
-				$item->text .= ' [' . Text::_($conditionName) . ']';
-			}
 		}
 
 		// Get workflow stage title
