@@ -56,6 +56,24 @@ trait WorkflowBehaviorTrait
 		$params = ComponentHelper::getParams($this->extension);
 
 		$this->workflowEnabled = $params->get('workflows_enable', 1);
+
+		$this->enableWorkflowBatch();
+	}
+
+	/**
+	 * Add the workflow batch to the command list. Can be overwritten bei the child class
+	 *
+	 * @return  void
+	 *
+	 * @since   4.0.0
+	 */
+	protected function enableWorkflowBatch()
+	{
+		// Enable batch
+		if ($this->workflowEnabled && property_exists($this, 'batch_commands'))
+		{
+			$this->batch_commands['workflowstage_id'] = 'batchWorkflowStage';
+		}
 	}
 
 	/**
@@ -80,6 +98,19 @@ trait WorkflowBehaviorTrait
 		}
 
 		// Import the workflow plugin group to allow form manipulation.
+		$this->importWorflowPlugins();
+	}
+
+	/**
+	 * Import the Workflow plugins.
+	 *
+	 * @param   Form   $form  A Form object.
+	 * @param   mixed  $data  The data expected for the form.
+	 *
+	 * @return  void
+	 */
+	protected function importWorflowPlugins()
+	{
 		PluginHelper::importPlugin('workflow');
 	}
 
