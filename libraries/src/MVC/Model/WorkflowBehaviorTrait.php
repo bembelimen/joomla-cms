@@ -98,7 +98,7 @@ trait WorkflowBehaviorTrait
 		}
 
 		// Import the workflow plugin group to allow form manipulation.
-		$this->importWorflowPlugins();
+		$this->importWorkflowPlugins();
 	}
 
 	/**
@@ -109,7 +109,7 @@ trait WorkflowBehaviorTrait
 	 *
 	 * @return  void
 	 */
-	protected function importWorflowPlugins()
+	protected function importWorkflowPlugins()
 	{
 		PluginHelper::importPlugin('workflow');
 	}

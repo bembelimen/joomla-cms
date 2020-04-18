@@ -349,7 +349,7 @@ class ArticleModel extends AdminModel implements WorkflowModelInterface
 	 */
 	public function publish(&$pks, $value = 1)
 	{
-		$this->importWorflowPlugins();
+		$this->importWorkflowPlugins();
 
 		return parent::publish($pks, $value);
 	}
