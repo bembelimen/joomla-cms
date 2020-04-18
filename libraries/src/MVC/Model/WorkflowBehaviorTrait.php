@@ -38,6 +38,14 @@ trait WorkflowBehaviorTrait
 	protected $workflowEnabled = false;
 
 	/**
+	 * The workflow object
+	 *
+	 * @var    Workflow
+	 * @since  4.0.0
+	 */
+	protected $workflow;
+
+	/**
 	 * Set Up the workflow
 	 *
 	 * @param   string  $extension  The option and section separated by .
@@ -52,6 +60,8 @@ trait WorkflowBehaviorTrait
 		{
 			$this->section = array_shift($parts);
 		}
+
+		$this->workflow = new Workflow(['extension' => $this->extension]);
 
 		$params = ComponentHelper::getParams($this->extension);
 
@@ -84,11 +94,10 @@ trait WorkflowBehaviorTrait
 	 *
 	 * @return  void
 	 *
-	 * @throws  \Exception if there is an error in the form event.
 	 * @since   4.0.0
 	 * @see     FormField
 	 */
-	public function preprocessFormWorkflow(Form $form, $data)
+	public function workflowPreprocessForm(Form $form, $data)
 	{
 		$this->addTransitionField($form, $data);
 
@@ -99,6 +108,83 @@ trait WorkflowBehaviorTrait
 
 		// Import the workflow plugin group to allow form manipulation.
 		$this->importWorkflowPlugins();
+	}
+
+	/**
+	 * Preparation of workflow data/plugins
+	 *
+	 * @return  void
+	 *
+	 * @since   4.0.0
+	 */
+	public function workflowBeforeSave()
+	{
+		if (!$this->workflowEnabled)
+		{
+			return;
+		}
+
+		$this->importWorkflowPlugins();
+	}
+
+	/**
+	 * Executing of relevant workflow methods
+	 *
+	 * @return  void
+	 *
+	 * @since   4.0.0
+	 */
+	public function workflowAfterSave($data)
+	{
+		// Regardless if workflow is active or not, we have to set the default stage
+		// So we can work with the workflow, when the user activates it later
+		$id = $this->getState($this->getName() . '.id');
+		$isNew = $this->getState($this->getName() . '.new');
+
+		// We save the first stage
+		if ($isNew)
+		{
+			$form = $this->getForm();
+
+			$stage_id = $this->getStageForNewItem($form, $data);
+
+			$this->workflow->createAssociation($id, $stage_id);
+		}
+
+		if (!$this->workflowEnabled)
+		{
+			return;
+		}
+
+		// Execute transition
+		if (!empty($data['transition']))
+		{
+			$this->executeTransition($id, $data['transition']);
+		}
+	}
+
+	/**
+	 * Runs transition for item.
+	 *
+	 * @param   integer  $pk             Id of article
+	 * @param   integer  $transition_id  Id of transition
+	 *
+	 * @return  boolean
+	 *
+	 * @since   4.0.0
+	 */
+	public function executeTransition(int $pk, int $transition_id): bool
+	{
+		$result = $this->workflow->executeTransition([$pk], $transition_id);
+
+		if (!$result)
+		{
+			$this->setError(Text::_('COM_CONTENT_ERROR_UPDATE_STAGE'));
+
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -144,10 +230,8 @@ trait WorkflowBehaviorTrait
 
 		if ($id)
 		{
-			$workflow = new Workflow(['extension' => $extension]);
-
 			// Transition field
-			$assoc = $workflow->getAssociation($id);
+			$assoc = $this->workflow->getAssociation($id);
 
 			$form->setFieldAttribute('transition', 'workflow_stage', (int) $assoc->stage_id);
 		}
@@ -193,7 +277,7 @@ trait WorkflowBehaviorTrait
 			return false;
 		}
 
-		$catId = isset($data->$catKey) ? $data->$catKey : $form->getValue($catKey);
+		$catId = isset(((object) $data)->$catKey) ? ((object) $data)->$catKey : $form->getValue($catKey);
 
 		// Try to get the category from the html code of the field
 		if (empty($catId))
@@ -361,10 +445,8 @@ trait WorkflowBehaviorTrait
 			return false;
 		}
 
-		$workflow = new Workflow(['extension' => $this->option]);
-
 		// Update workflow associations
-		return $workflow->updateAssociations($pks, $value);
+		return $this->workflow->updateAssociations($pks, $value);
 	}
 
 }

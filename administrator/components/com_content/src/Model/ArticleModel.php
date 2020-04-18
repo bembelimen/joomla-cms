@@ -35,7 +35,6 @@ use Joomla\Component\Categories\Administrator\Helper\CategoriesHelper;
 use Joomla\Component\Content\Administrator\Extension\ContentComponent;
 use Joomla\Component\Content\Administrator\Helper\ContentHelper;
 use Joomla\Component\Fields\Administrator\Helper\FieldsHelper;
-use Joomla\Component\Workflow\Administrator\Table\StageTable;
 use Joomla\Database\ParameterType;
 use Joomla\Registry\Registry;
 use Joomla\Utilities\ArrayHelper;
@@ -126,11 +125,9 @@ class ArticleModel extends AdminModel implements WorkflowModelInterface
 		}
 
 		// Copy workflow association
-		$workflow = new Workflow(['extension' => 'com_content']);
+		$assoc = $this->workflow->getAssociation((int) $oldId);
 
-		$assoc = $workflow->getAssociation((int) $oldId);
-
-		$workflow->createAssociation((int) $newId, (int) $assoc->stage_id);
+		$this->workflow->createAssociation((int) $newId, (int) $assoc->stage_id);
 
 		// Register FieldsHelper
 		\JLoader::register('FieldsHelper', JPATH_ADMINISTRATOR . '/components/com_fields/helpers/fields.php');
@@ -678,6 +675,8 @@ class ArticleModel extends AdminModel implements WorkflowModelInterface
 			$data['images'] = (string) $registry;
 		}
 
+		$this->workflowBeforeSave();
+
 		// Create new category, if needed.
 		$createCategory = true;
 
@@ -804,6 +803,8 @@ class ArticleModel extends AdminModel implements WorkflowModelInterface
 					$data['featured_down'] ?? null
 				);
 			}
+
+			$this->workflowAfterSave($data);
 
 			return true;
 		}
@@ -1004,7 +1005,7 @@ class ArticleModel extends AdminModel implements WorkflowModelInterface
 			}
 		}
 
-		$this->preprocessFormWorkflow($form, $data);
+		$this->workflowPreprocessForm($form, $data);
 
 		parent::preprocessForm($form, $data, $group);
 	}
@@ -1077,9 +1078,7 @@ class ArticleModel extends AdminModel implements WorkflowModelInterface
 			$db->setQuery($query);
 			$db->execute();
 
-			$workflow = new Workflow(['extension' => 'com_content']);
-
-			$workflow->deleteAssociation($pks);
+			$this->workflow->deleteAssociation($pks);
 		}
 
 		return $return;
@@ -1092,42 +1091,4 @@ class ArticleModel extends AdminModel implements WorkflowModelInterface
 	 *
 	 * @return  integer|boolean  If found, the workflow ID, otherwise false
 	 */
-
-	/**
-	 * Runs transition for item.
-	 *
-	 * @param   integer  $pk             Id of article
-	 * @param   integer  $transition_id  Id of transition
-	 *
-	 * @return  boolean
-	 *
-	 * @since   4.0.0
-	 */
-	public function runTransition(int $pk, int $transition_id): bool
-	{
-		$workflow = new Workflow(['extension' => 'com_content']);
-
-		$runTransaction = $workflow->executeTransition([$pk], $transition_id);
-
-		if (!$runTransaction)
-		{
-			$this->setError(Text::_('COM_CONTENT_ERROR_UPDATE_STAGE'));
-
-			return false;
-		}
-
-		// B/C state change trigger for UCM
-		/* @TODO Move to transition
-		 * $context = $this->option . '.' . $this->name;
-
-		// Include the plugins for the change of stage event.
-		PluginHelper::importPlugin($this->events_map['change_state']);
-
-		// Trigger the change stage event.
-		//Factory::getApplication()->triggerEvent($this->event_change_state, [$context, [$pk]]);
-		 *
-		 */
-
-		return true;
-	}
 }
