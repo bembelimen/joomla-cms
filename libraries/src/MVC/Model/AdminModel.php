@@ -117,8 +117,7 @@ abstract class AdminModel extends FormModel
 	protected $batch_commands = array(
 		'assetgroup_id' => 'batchAccess',
 		'language_id' => 'batchLanguage',
-		'tag' => 'batchTag',
-		'workflowstage_id' => 'batchWorkflowStage',
+		'tag' => 'batchTag'
 	);
 
 	/**
@@ -1306,7 +1305,7 @@ abstract class AdminModel extends FormModel
 			}
 
 			// Trigger the before save event.
-			$result = Factory::getApplication()->triggerEvent($this->event_before_save, array($context, $table, $isNew, $data));
+			$result = $app->triggerEvent($this->event_before_save, array($context, $table, $isNew, $data));
 
 			if (\in_array(false, $result, true))
 			{
@@ -1327,7 +1326,7 @@ abstract class AdminModel extends FormModel
 			$this->cleanCache();
 
 			// Trigger the after save event.
-			Factory::getApplication()->triggerEvent($this->event_after_save, array($context, $table, $isNew, $data));
+			$app->triggerEvent($this->event_after_save, array($context, $table, $isNew, $data));
 		}
 		catch (\Exception $e)
 		{

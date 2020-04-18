@@ -9,7 +9,7 @@
 
 namespace Joomla\Component\Content\Administrator\View\Articles;
 
-defined('_JEXEC') or die;
+\defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Multilanguage;
@@ -116,9 +116,6 @@ class HtmlView extends BaseHtmlView
 				$this->filterForm->setFieldAttribute('category_id', 'language', '*,' . $forcedLanguage, 'filter');
 			}
 		}
-		
-		/*
-		@TODO Move to the plugin
 
 		/*
 		@TODO Move to the plugin
@@ -153,8 +150,6 @@ class HtmlView extends BaseHtmlView
 		}
 
 		$this->document->addScriptOptions('articles.transitions', $transitions);
-		
-		*/
 
 		*/
 

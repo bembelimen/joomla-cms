@@ -154,8 +154,6 @@ class TransitionField extends ListField
 			$items = ArrayHelper::sortObjects($items, 'value', 1, true, true);
 
 			Factory::getLanguage()->load('com_workflow', JPATH_ADMINISTRATOR);
-
-			$workflow = new Workflow(['extension' => $this->extension]);
 		}
 
 		// Get workflow stage title
