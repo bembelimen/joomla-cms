@@ -120,9 +120,6 @@ class HtmlView extends BaseHtmlView
 		/*
 		@TODO Move to the plugin
 
-		/*
-		@TODO Move to the plugin
-
 		$transitions = [
 			'publish' => [],
 			'unpublish' => [],
@@ -153,8 +150,6 @@ class HtmlView extends BaseHtmlView
 		}
 
 		$this->document->addScriptOptions('articles.transitions', $transitions);
-
-		*/
 
 		*/
 
