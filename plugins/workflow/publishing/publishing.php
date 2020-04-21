@@ -87,7 +87,7 @@ class PlgWorkflowPublishing extends CMSPlugin
 
 		$workflow = $model->getItem($workflow_id);
 
-		if (!$this->isSupported($workflow->context))
+		if (!$this->isSupported($workflow->extension))
 		{
 			return true;
 		}
@@ -195,7 +195,7 @@ class PlgWorkflowPublishing extends CMSPlugin
 
 		$component = $this->app->bootComponent($parts[0]);
 
-		if (!$component instanceof WorkflowServiceInterface || !$component->supportFunctionality('joomla.state'))
+		if (!$component instanceof WorkflowServiceInterface || !$component->supportFunctionality('joomla.state', $context))
 		{
 			return false;
 		}
