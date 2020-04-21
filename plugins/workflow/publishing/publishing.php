@@ -148,6 +148,81 @@ class PlgWorkflowPublishing extends CMSPlugin
 	}
 
 	/**
+	 * Check if we can execute the transition
+	 *
+	 * @param   string   $context     The context
+	 * @param   array    $pks         IDs of the items
+	 * @param   object   $transition  The value to change to
+	 *
+	 * @return boolean
+	 */
+	public function onWorkflowBeforeTransition($context, $pks, $transition)
+	{
+		if (!$this->isSupported($context) || !is_numeric($transition->options->get('publishing')))
+		{
+			return true;
+		}
+
+		$value = (int) $transition->options->get('publishing');
+
+		// Here it becomes tricky. We would like to use the component models publish method, so we will
+		// Execute the normal "onContentBeforeChangeState" plugins. But they could cancel the execution,
+		// So we have to precheck and cancel the whole transition stuff if not allowed.
+		$this->app->set('plgWorkflowPublishing.' . $context, $pks);
+
+		$result = $this->app->triggerEvent('onContentBeforeChangeState', [$context, $pks, $value]);
+
+		// Release whitelist, the job is done
+		$this->app->set('plgWorkflowPublishing.' . $context, []);
+
+		if (\in_array(false, $result, true))
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Change State of an item. Used to disable state change
+	 *
+	 * @param   string   $context     The context
+	 * @param   array    $pks         IDs of the items
+	 * @param   object   $transition  The value to change to
+	 *
+	 * @return boolean
+	 */
+	public function onWorkflowAfterTransition($context, $pks, $transition)
+	{
+		if (!$this->isSupported($context))
+		{
+			return true;
+		}
+
+		$parts = explode('.', $context);
+
+		// We need at least the extension + view for loading the table fields
+		if (count($parts) < 2)
+		{
+			return false;
+		}
+
+		$component = $this->app->bootComponent($parts[0]);
+
+		$value = (int) $transition->options->get('publishing');
+
+		$options = [
+			'ignore_request' => true,
+			// We already have triggered onContentBeforeChangeState, so use our own
+			'event_before_change_state' => 'onWorkflowBeforeChangeState'
+		];
+
+		$model = $component->getMVCFactory()->createModel($parts[1], $this->app->getName(), $options);
+
+		return $model->publish($pks, $value);
+	}
+
+	/**
 	 * Change State of an item. Used to disable state change
 	 *
 	 * @param   string   $context  The context
@@ -158,6 +233,13 @@ class PlgWorkflowPublishing extends CMSPlugin
 	public function onContentBeforeChangeState($context, $pks, $value)
 	{
 		if (!$this->isSupported($context))
+		{
+			return true;
+		}
+
+		// We have whitelisted the pks, so we're the one who triggered
+		// With onWorkflowBeforeTransition => free pass
+		if ($this->app->get('plgWorkflowPublishing.' . $context) === $pks)
 		{
 			return true;
 		}
@@ -230,7 +312,7 @@ class PlgWorkflowPublishing extends CMSPlugin
 
 		$model = $component->getMVCFactory()->createModel($parts[1], $this->app->getName(), ['ignore_request' => true]);
 
-		if (!$model instanceof DatabaseModelInterface)
+		if (!$model instanceof DatabaseModelInterface || !method_exists($model, 'publish'))
 		{
 			return false;
 		}

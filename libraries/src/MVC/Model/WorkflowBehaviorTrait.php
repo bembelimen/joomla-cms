@@ -61,7 +61,7 @@ trait WorkflowBehaviorTrait
 			$this->section = array_shift($parts);
 		}
 
-		$this->workflow = new Workflow(['extension' => $this->extension]);
+		$this->workflow = new Workflow(['extension' => $extension]);
 
 		$params = ComponentHelper::getParams($this->extension);
 
@@ -107,6 +107,16 @@ trait WorkflowBehaviorTrait
 		}
 
 		// Import the workflow plugin group to allow form manipulation.
+		$this->importWorkflowPlugins();
+	}
+
+	public function workflowBeforeStageChange()
+	{
+		if (!$this->workflowEnabled)
+		{
+			return;
+		}
+
 		$this->importWorkflowPlugins();
 	}
 
