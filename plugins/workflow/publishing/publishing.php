@@ -10,16 +10,12 @@
 defined('_JEXEC') or die;
 
 use Joomla\CMS\Application\CMSApplicationInterface;
-use Joomla\CMS\Factory;
 use Joomla\CMS\Form\Form;
-use Joomla\CMS\Language\Multilanguage;
+use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Model\DatabaseModelInterface;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Table\TableInterface;
-use Joomla\CMS\Workflow\Workflow;
 use Joomla\CMS\Workflow\WorkflowServiceInterface;
-use Joomla\Component\Fields\Administrator\Helper\FieldsHelper;
-use Joomla\Registry\Registry;
 
 /**
  * Workflow Publishing Plugin
@@ -122,36 +118,96 @@ class PlgWorkflowPublishing extends CMSPlugin
 	{
 		$context = $form->getName();
 
-		$parts = explode('.', $context);
-
-		// We need at least the extension + view for loading the fields
-		if (count($parts) < 2)
+		if (!$this->isSupported($context))
 		{
 			return true;
 		}
 
-		$component = $this->app->bootComponent($parts[0]);
+		$parts = explode('.', $context);
 
-		if (!$component instanceof WorkflowServiceInterface)
+		$table = $this->app->bootComponent($parts[0])
+					->getMVCFactory()->createModel($parts[1], $this->app->getName(), ['ignore_request' => true])
+					->getTable();
+
+		$form->setFieldAttribute($table->getColumnAlias('published'), 'disabled', 'true');
+
+		return true;
+	}
+
+	/**
+	 * The save event.
+	 *
+	 * @param   string   $context  The context
+	 * @param   object   $table    The item
+	 * @param   boolean  $isNew    Is new item
+	 * @param   array    $data     The validated data
+	 *
+	 * @return  boolean
+	 *
+	 * @since   4.0.0
+	 */
+	public function onContentBeforeSave($context, TableInterface $table, $isNew, $data)
+	{
+		if (!$this->isSupported($context))
 		{
 			return true;
+		}
+
+		$keyName = $table->getColumnAlias('published');
+
+		// Check for the old value
+		$article = clone $table;
+
+		$article->load($table->id);
+
+		// We don't allow the change of the state when we use the workflow
+		// As we're setting the field to disabled, no value should be there at all
+		if (isset($data[$keyName]))
+		{
+			$table->setError(Text::_('PLG_WORKFLOW_PUBLISHING_SAVE_NOT_ALLOWED'));
+
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Check if the current plugin should execute workflow related activities
+	 *
+	 * @param type $context
+	 * @return boolean
+	 */
+	protected function isSupported($context)
+	{
+		$parts = explode('.', $context);
+
+		// We need at least the extension + view for loading the table fields
+		if (count($parts) < 2)
+		{
+			return false;
+		}
+
+		$component = $this->app->bootComponent($parts[0]);
+
+		if (!$component instanceof WorkflowServiceInterface || !$component->supportFunctionality('joomla.state'))
+		{
+			return false;
 		}
 
 		$model = $component->getMVCFactory()->createModel($parts[1], $this->app->getName(), ['ignore_request' => true]);
 
 		if (!$model instanceof DatabaseModelInterface)
 		{
-			return true;
+			return false;
 		}
 
 		$table = $model->getTable();
 
 		if (!$table instanceof TableInterface || !$table->hasField('published'))
 		{
-			return true;
+			return false;
 		}
-
-		$form->setFieldAttribute($table->getColumnAlias('published'), 'disabled', 'true');
 
 		return true;
 	}
