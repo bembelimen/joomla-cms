@@ -75,10 +75,6 @@ class PlgWorkflowPublishing extends CMSPlugin
 	 */
 	protected function enhanceTransitionForm(Form $form, $data)
 	{
-		Form::addFormPath(__DIR__ . '/forms');
-
-		$form->loadFile('workflow_publishing');
-
 		$model = $this->app->bootComponent('com_workflow')
 				->getMVCFactory()->createModel('Workflow', 'Administrator', ['ignore_request' => true]);
 
@@ -89,10 +85,19 @@ class PlgWorkflowPublishing extends CMSPlugin
 			$workflow_id = $this->app->input->getInt('workflow_id');
 		}
 
+		$workflow = $model->getItem($workflow_id);
+
+		if (!$this->isSupported($workflow->context))
+		{
+			return true;
+		}
+
+		Form::addFormPath(__DIR__ . '/forms');
+
+		$form->loadFile('workflow_publishing');
+
 		if ($workflow_id)
 		{
-			$workflow = $model->getItem($workflow_id);
-
 			$form->setFieldAttribute('publishing', 'extension', $workflow->extension, 'options');
 		}
 		else
