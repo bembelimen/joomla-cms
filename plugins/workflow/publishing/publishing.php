@@ -148,6 +148,26 @@ class PlgWorkflowPublishing extends CMSPlugin
 	}
 
 	/**
+	 * Change State of an item. Used to disable state change
+	 *
+	 * @param   string   $context  The context
+	 * @param   array    $pks      IDs of the items
+	 * @param   int      $value    The value to change to
+	 * @return boolean
+	 */
+	public function onContentBeforeChangeState($context, $pks, $value)
+	{
+		if (!$this->isSupported($context))
+		{
+			return true;
+		}
+
+		$this->app->enqueueMessage(Text::_('PLG_WORKFLOW_PUBLISHING_CHANGE_STATE_NOT_ALLOWED'), 'error');
+
+		return false;
+	}
+
+	/**
 	 * The save event.
 	 *
 	 * @param   string   $context  The context
@@ -177,7 +197,7 @@ class PlgWorkflowPublishing extends CMSPlugin
 		// As we're setting the field to disabled, no value should be there at all
 		if (isset($data[$keyName]))
 		{
-			$table->setError(Text::_('PLG_WORKFLOW_PUBLISHING_SAVE_NOT_ALLOWED'));
+			$this->app->enqueueMessage(Text::_('PLG_WORKFLOW_PUBLISHING_CHANGE_STATE_NOT_ALLOWED'), 'error');
 
 			return false;
 		}

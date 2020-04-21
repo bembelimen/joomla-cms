@@ -12,6 +12,7 @@ namespace Joomla\CMS\Workflow;
 
 use Joomla\CMS\Extension\ComponentInterface;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Plugin\PluginHelper;
 use Joomla\Database\ParameterType;
 use Joomla\Utilities\ArrayHelper;
 
@@ -198,12 +199,13 @@ class Workflow
 
 		$app = Factory::getApplication();
 
+		PluginHelper::importPlugin('workflow');
+
 		$result = $app->triggerEvent(
 			'onWorkflowBeforeTransition',
 			[
+				'context' => $this->extension,
 				'pks' => $pks,
-				'extension' => $this->extension,
-				'user' => $app->getIdentity(),
 				'transition' => $transition,
 			]
 		);
@@ -220,9 +222,8 @@ class Workflow
 			$app->triggerEvent(
 				'onWorkflowAfterTransition',
 				[
+					'context' => $this->extension,
 					'pks' => $pks,
-					'extension' => $this->extension,
-					'user' => $app->getIdentity(),
 					'transition' => $transition,
 				]
 			);
