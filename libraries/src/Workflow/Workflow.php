@@ -198,7 +198,7 @@ class Workflow
 
 		$app = Factory::getApplication();
 
-		$app->triggerEvent(
+		$result = $app->triggerEvent(
 			'onWorkflowBeforeTransition',
 			[
 				'pks' => $pks,
