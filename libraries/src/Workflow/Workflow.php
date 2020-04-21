@@ -208,6 +208,11 @@ class Workflow
 			]
 		);
 
+		if (\in_array(false, $result, true))
+		{
+			return false;
+		}
+
 		$success = $this->updateAssociations($pks, (int) $transition->to_stage_id);
 
 		if ($success)
