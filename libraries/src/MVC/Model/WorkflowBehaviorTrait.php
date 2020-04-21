@@ -48,7 +48,11 @@ trait WorkflowBehaviorTrait
 	/**
 	 * Set Up the workflow
 	 *
-	 * @param   string  $extension  The option and section separated by .
+	 * @param   string  $extension  The option and section separated by.
+	 *
+	 * @return  void
+	 *
+	 * @since   4.0.0
 	 */
 	public function setUpWorkflow($extension)
 	{
@@ -110,6 +114,13 @@ trait WorkflowBehaviorTrait
 		$this->importWorkflowPlugins();
 	}
 
+	/**
+	 * Let plugins access stage change events
+	 *
+	 * @return  void
+	 *
+	 * @since   4.0.0
+	 */
 	public function workflowBeforeStageChange()
 	{
 		if (!$this->workflowEnabled)
@@ -183,7 +194,7 @@ trait WorkflowBehaviorTrait
 	 *
 	 * @since   4.0.0
 	 */
-	public function executeTransition(int $pk, int $transition_id): bool
+	public function executeTransition(int $pk, int $transition_id)
 	{
 		$result = $this->workflow->executeTransition([$pk], $transition_id);
 
