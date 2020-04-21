@@ -138,8 +138,11 @@ class PlgWorkflowPublishing extends CMSPlugin
 
 		$parts = explode('.', $context);
 
-		$table = $this->app->bootComponent($parts[0])
-					->getMVCFactory()->createModel($parts[1], $this->app->getName(), ['ignore_request' => true])
+		$component = $this->app->bootComponent($parts[0]);
+
+		$modelName = $component->getModelName($context);
+
+		$table = $component->getMVCFactory()->createModel($modelName, $this->app->getName(), ['ignore_request' => true])
 					->getTable();
 
 		$form->setFieldAttribute($table->getColumnAlias('published'), 'disabled', 'true');
@@ -217,7 +220,9 @@ class PlgWorkflowPublishing extends CMSPlugin
 			'event_before_change_state' => 'onWorkflowBeforeChangeState'
 		];
 
-		$model = $component->getMVCFactory()->createModel($parts[1], $this->app->getName(), $options);
+		$modelName = $component->getModelName($context);
+
+		$model = $component->getMVCFactory()->createModel($modelName, $this->app->getName(), $options);
 
 		return $model->publish($pks, $value);
 	}
@@ -305,12 +310,14 @@ class PlgWorkflowPublishing extends CMSPlugin
 
 		$component = $this->app->bootComponent($parts[0]);
 
-		if (!$component instanceof WorkflowServiceInterface || !$component->supportFunctionality($this->supportname, $context))
+		if (!$component instanceof WorkflowServiceInterface || !$component->isWorkflowActive($context) || !$component->supportFunctionality($this->supportname, $context))
 		{
 			return false;
 		}
 
-		$model = $component->getMVCFactory()->createModel($parts[1], $this->app->getName(), ['ignore_request' => true]);
+		$modelName = $component->getModelName($context);
+
+		$model = $component->getMVCFactory()->createModel($modelName, $this->app->getName(), ['ignore_request' => true]);
 
 		if (!$model instanceof DatabaseModelInterface || !method_exists($model, 'publish'))
 		{
