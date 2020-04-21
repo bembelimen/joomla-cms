@@ -41,6 +41,14 @@ class PlgWorkflowPublishing extends CMSPlugin
 	protected $app;
 
 	/**
+	 * The name of the supported name to check against
+	 *
+	 * @var   string
+	 * @since __DEPLOY_VERSION__
+	 */
+	protected $supportname = 'joomla.state';
+
+	/**
 	 * The form event.
 	 *
 	 * @param   Form      $form  The form
@@ -195,7 +203,7 @@ class PlgWorkflowPublishing extends CMSPlugin
 
 		$component = $this->app->bootComponent($parts[0]);
 
-		if (!$component instanceof WorkflowServiceInterface || !$component->supportFunctionality('joomla.state', $context))
+		if (!$component instanceof WorkflowServiceInterface || !$component->supportFunctionality($this->supportname, $context))
 		{
 			return false;
 		}
