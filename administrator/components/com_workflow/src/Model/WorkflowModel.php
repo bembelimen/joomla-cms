@@ -69,26 +69,30 @@ class WorkflowModel extends AdminModel
 
 		return array($title, $alias);
 	}
-	
-	
 
 	/**
 	 * Method to get the new Ordering number
 	 *
-	 * @param   string $table   The anme of the table 
+	 * @param   string  $table   Thename of the table 
+	 * @param   integer  $workflowId   The id of the workflow  
 	 *
 	 * @return   integer  the next ordering number
 	 *
 	 * @since  4.0.0
 	 */
-	protected function getNextOrdering($table)
+	protected function getNextOrdering($table, $workflowId)
 	{
 		$db = Factory::getDbo();
 		$query = $db->getQuery(true);
 
 		$query
-			->select('MAX(' . $db->quoteName('ordering') . ') + 1')
+			->select('IFNULL(MAX(' . $db->quoteName('ordering') . ') + 1, 1)')
 			->from($db->quoteName($table));
+
+		if (is_int($workflowId))
+		{
+			$query->where($db->quoteName('workflow_id') . ' = ' . (int) $workflowId);
+		}
 
 		return $db->setQuery($query)->loadResult();
 	}
@@ -110,7 +114,7 @@ class WorkflowModel extends AdminModel
 		$extension         = $app->getUserStateFromRequest($context . '.filter.extension', 'extension', null, 'cmd');
 		$data['extension'] = !empty($data['extension']) ? $data['extension'] : $extension;
 		$data['asset_id']  = 0;
-		$data['ordering']  = $this->getNextOrdering('#__workflows');
+		$data['ordering']  = $this->getNextOrdering('#__workflows', null);
 
 		if ($input->get('task') == 'save2copy')
 		{
@@ -133,8 +137,8 @@ class WorkflowModel extends AdminModel
 		if ($result && $input->getCmd('task') !== 'save2copy' && $this->getState($this->getName() . '.new'))
 		{
 			$workflow_id = (int) $this->getState($this->getName() . '.id');
-			$stageOrdering = $this->getNextOrdering('#__workflow_stages');
-			$transitionOrdering = $this->getNextOrdering('#__workflow_transitions');
+			$stageOrdering = $this->getNextOrdering('#__workflow_stages', $workflow_id);
+			$transitionOrdering = $this->getNextOrdering('#__workflow_transitions', $workflow_id);
 			
 			$stages = [
 				[
