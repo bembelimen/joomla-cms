@@ -69,6 +69,29 @@ class WorkflowModel extends AdminModel
 
 		return array($title, $alias);
 	}
+	
+	
+
+	/**
+	 * Method to get the new Ordering number
+	 *
+	 * @param   string $table   The anme of the table 
+	 *
+	 * @return   integer  the next ordering number
+	 *
+	 * @since  4.0.0
+	 */
+	protected function getNextOrdering($table)
+	{
+		$db = Factory::getDbo();
+		$query = $db->getQuery(true);
+
+		$query
+			->select('MAX(' . $db->quoteName('ordering') . ') + 1')
+			->from($db->quoteName($table));
+
+		return $db->setQuery($query)->loadResult();
+	}
 
 	/**
 	 * Method to save the form data.
@@ -87,6 +110,7 @@ class WorkflowModel extends AdminModel
 		$extension         = $app->getUserStateFromRequest($context . '.filter.extension', 'extension', null, 'cmd');
 		$data['extension'] = !empty($data['extension']) ? $data['extension'] : $extension;
 		$data['asset_id']  = 0;
+		$data['ordering']  = $this->getNextOrdering('#__workflows');
 
 		if ($input->get('task') == 'save2copy')
 		{
@@ -109,7 +133,9 @@ class WorkflowModel extends AdminModel
 		if ($result && $input->getCmd('task') !== 'save2copy' && $this->getState($this->getName() . '.new'))
 		{
 			$workflow_id = (int) $this->getState($this->getName() . '.id');
-
+			$stageOrdering = $this->getNextOrdering('#__workflow_stages');
+			$transitionOrdering = $this->getNextOrdering('#__workflow_transitions');
+			
 			$stages = [
 				[
 					'title' => 'JUNPUBLISHED',
@@ -147,6 +173,7 @@ class WorkflowModel extends AdminModel
 				$table->published = 1;
 				$table->default = (int) !empty($stage['default']);
 				$table->description = '';
+				$table->ordering = $stageOrdering++;
 
 				$table->store();
 
@@ -160,6 +187,7 @@ class WorkflowModel extends AdminModel
 				$transition->from_stage_id = -1;
 				$transition->to_stage_id = (int) $table->id;
 				$transition->options = $stage['options'];
+				$transition->ordering = $transitionOrdering++;
 
 				$transition->store();
 			}
