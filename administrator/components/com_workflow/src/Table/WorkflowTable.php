@@ -183,6 +183,16 @@ class WorkflowTable extends Table
 	{
 		$date = Factory::getDate();
 		$user = Factory::getUser();
+		
+		$db = Factory::getDbo();
+		$query = $db->getQuery(true);
+
+		// Get next ordering number
+		$query
+			->select('IFNULL(MAX(' . $db->quoteName('ordering') . ') + 1, 1)')
+			->from($db->quoteName('#__workflows'));
+
+		$ordering =  $db->setQuery($query)->loadResult();
 
 		$table = new WorkflowTable($this->getDbo());
 
@@ -195,6 +205,7 @@ class WorkflowTable extends Table
 		else
 		{
 			$this->modified_by = 0;
+			$this->ordering = $ordering;
 		}
 
 		if (!(int) $this->created)

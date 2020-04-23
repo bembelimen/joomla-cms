@@ -65,7 +65,17 @@ class TransitionTable extends Table
 	 * @since   4.0.0
 	 */
 	public function store($updateNulls = true)
-	{
+	{	
+		$db = Factory::getDbo();
+		$query = $db->getQuery(true);
+
+		$query
+			->select('IFNULL(MAX(' . $db->quoteName('ordering') . ') + 1, 1)')
+			->from($db->quoteName('#__workflow_transitions'))
+			->where($db->quoteName('workflow_id') . ' = ' . (int) $this->workflow_id);
+
+		$this->ordering = $db->setQuery($query)->loadResult();
+
 		return parent::store($updateNulls);
 	}
 
