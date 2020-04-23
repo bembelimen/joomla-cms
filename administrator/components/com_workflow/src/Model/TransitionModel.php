@@ -163,6 +163,17 @@ class TransitionModel extends AdminModel
 			$data['workflow_id'] = $workflowID;
 		}
 
+		// Get the next ordering number 
+		$db = Factory::getDbo();
+		$query = $db->getQuery(true);
+
+		$query
+			->select('MAX(' . $db->quoteName('ordering') . ') + 1')
+			->from($db->quoteName('#__workflow_transitions'))
+			->where($db->quoteName('workflow_id') . ' = ' . (int) $workflowID);
+
+		$data['ordering'] = $db->setQuery($query)->loadResult();
+
 		if ($input->get('task') == 'save2copy')
 		{
 			$origTable = clone $this->getTable();
