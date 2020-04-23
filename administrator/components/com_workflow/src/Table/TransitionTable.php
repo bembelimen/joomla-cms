@@ -66,7 +66,7 @@ class TransitionTable extends Table
 	 */
 	public function store($updateNulls = true)
 	{	
-		if (!$this->ordering)
+		if (!(int) $this->ordering)
 		{
 			$this->ordering = $this->getNextOrder($this->_db->quoteName('workflow_id') . ' = ' .  (int) $this->workflow_id);
 		}
