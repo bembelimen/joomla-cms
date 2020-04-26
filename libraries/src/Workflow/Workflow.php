@@ -12,7 +12,9 @@ namespace Joomla\CMS\Workflow;
 
 use Joomla\CMS\Extension\ComponentInterface;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Plugin\PluginHelper;
 use Joomla\Database\ParameterType;
+use Joomla\Registry\Registry;
 use Joomla\Utilities\ArrayHelper;
 
 /**
@@ -171,20 +173,23 @@ class Workflow
 				$db->quoteName('t.id'),
 				$db->quoteName('t.to_stage_id'),
 				$db->quoteName('t.from_stage_id'),
-				$db->quoteName('s.condition'),
+				$db->quoteName('t.options'),
 			]
 		)
 			->from($db->quoteName('#__workflow_transitions', 't'))
 			->join('LEFT', $db->quoteName('#__workflow_stages', 's'), $db->quoteName('s.id') . ' = ' . $db->quoteName('t.to_stage_id'))
 			->where($db->quoteName('t.id') . ' = :id')
+			->where($db->quoteName('t.published') . ' = 1')
 			->bind(':id', $transition_id, ParameterType::INTEGER);
 
-		if (!empty($this->options['published']))
+		$transition = $db->setQuery($query)->loadObject();
+
+		if (empty($transition->id))
 		{
-			$query->where($db->quoteName('t.published') . ' = 1');
+			return false;
 		}
 
-		$transition = $db->setQuery($query)->loadObject();
+		$transition->options = new Registry($transition->options);
 
 		// Check if the items can execute this transition
 		foreach ($pks as $pk)
@@ -197,57 +202,39 @@ class Workflow
 			}
 		}
 
-		$component = $this->getComponent();
+		$app = Factory::getApplication();
 
-		if ($component instanceof WorkflowServiceInterface)
+		PluginHelper::importPlugin('workflow');
+
+		$result = $app->triggerEvent(
+			'onWorkflowBeforeTransition',
+			[
+				'context' => $this->extension,
+				'pks' => $pks,
+				'transition' => $transition,
+			]
+		);
+
+		if (\in_array(false, $result, true))
 		{
-			$component->updateContentState($pks, (int) $transition->condition);
+			return false;
 		}
 
 		$success = $this->updateAssociations($pks, (int) $transition->to_stage_id);
 
 		if ($success)
 		{
-			$app = Factory::getApplication();
 			$app->triggerEvent(
 				'onWorkflowAfterTransition',
 				[
+					'context' => $this->extension,
 					'pks' => $pks,
-					'extension' => $this->extension,
-					'user' => $app->getIdentity(),
 					'transition' => $transition,
 				]
 			);
 		}
 
 		return $success;
-	}
-
-	/**
-	 * Gets the condition (i.e. state value) for a transition
-	 *
-	 * @param   integer  $transition_id  The transition id to get the condition of
-	 *
-	 * @return  integer|null  Integer if transition exists. Otherwise null
-	 */
-	public function getConditionForTransition(int $transition_id): ?int
-	{
-		$db = Factory::getDbo();
-		$query = $db->getQuery(true);
-		$query->select($db->quoteName('s.condition'))
-			->from($db->quoteName('#__workflow_transitions', 't'))
-			->join('LEFT', $db->quoteName('#__workflow_stages', 's'), $db->quoteName('s.id') . ' = ' . $db->quoteName('t.to_stage_id'))
-			->where($db->quoteName('t.id') . ' = :transition_id')
-			->bind(':transition_id', $transition_id, ParameterType::INTEGER);
-		$db->setQuery($query);
-		$condition = $db->loadResult();
-
-		if ($condition !== null)
-		{
-			$condition = (int) $condition;
-		}
-
-		return $condition;
 	}
 
 	/**

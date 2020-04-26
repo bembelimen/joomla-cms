@@ -31,6 +31,16 @@ class TransitionTable extends Table
 	protected $_supportNullValue = true;
 
 	/**
+	 * An array of key names to be json encoded in the bind function
+	 *
+	 * @var    array
+	 * @since  4.0.0
+	 */
+	protected $_jsonEncode = [
+		'options'
+	];
+
+	/**
 	 * Constructor
 	 *
 	 * @param   \JDatabaseDriver  $db  Database connector object
@@ -55,7 +65,12 @@ class TransitionTable extends Table
 	 * @since   4.0.0
 	 */
 	public function store($updateNulls = true)
-	{
+	{	
+		if (!(int) $this->ordering)
+		{
+			$this->ordering = $this->getNextOrder($this->_db->quoteName('workflow_id') . ' = ' .  (int) $this->workflow_id);
+		}
+
 		return parent::store($updateNulls);
 	}
 
@@ -74,7 +89,11 @@ class TransitionTable extends Table
 		$workflow = new WorkflowTable($this->getDbo());
 		$workflow->load($this->workflow_id);
 
-		return $workflow->extension . '.transition.' . (int) $this->$k;
+		$parts = explode('.', $workflow->extension);
+
+		$extension = array_shift($parts);
+
+		return $extension . '.transition.' . (int) $this->$k;
 	}
 
 	/**
@@ -102,9 +121,16 @@ class TransitionTable extends Table
 	protected function _getAssetParentId(Table $table = null, $id = null)
 	{
 		$asset = self::getInstance('Asset', 'JTable', array('dbo' => $this->getDbo()));
+
 		$workflow = new WorkflowTable($this->getDbo());
 		$workflow->load($this->workflow_id);
-		$name = $workflow->extension . '.workflow.' . (int) $workflow->id;
+
+		$parts = explode('.', $workflow->extension);
+
+		$extension = array_shift($parts);
+
+		$name = $extension . '.workflow.' . (int) $workflow->id;
+
 		$asset->loadByName($name);
 		$assetId = $asset->id;
 

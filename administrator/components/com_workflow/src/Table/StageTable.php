@@ -177,6 +177,11 @@ class StageTable extends Table
 	 */
 	public function store($updateNulls = true)
 	{
+		if (!(int) $this->ordering)
+		{
+			$this->ordering = $this->getNextOrder($this->_db->quoteName('workflow_id') . ' = ' .  (int) $this->workflow_id);
+		}
+
 		$table = new StageTable($this->getDbo());
 
 		if ($this->default == '1')
@@ -207,7 +212,11 @@ class StageTable extends Table
 		$workflow = new WorkflowTable($this->getDbo());
 		$workflow->load($this->workflow_id);
 
-		return $workflow->extension . '.stage.' . (int) $this->$k;
+		$parts = explode('.', $workflow->extension);
+
+		$extension = array_shift($parts);
+
+		return $extension . '.stage.' . (int) $this->$k;
 	}
 
 	/**
@@ -235,9 +244,16 @@ class StageTable extends Table
 	protected function _getAssetParentId(Table $table = null, $id = null)
 	{
 		$asset = self::getInstance('Asset', 'JTable', array('dbo' => $this->getDbo()));
+
 		$workflow = new WorkflowTable($this->getDbo());
 		$workflow->load($this->workflow_id);
-		$name = $workflow->extension . '.workflow.' . (int) $workflow->id;
+
+		$parts = explode('.', $workflow->extension);
+
+		$extension = array_shift($parts);
+
+		$name = $extension . '.workflow.' . (int) $workflow->id;
+
 		$asset->loadByName($name);
 		$assetId = $asset->id;
 

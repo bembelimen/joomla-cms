@@ -12,8 +12,10 @@ namespace Joomla\Component\Workflow\Administrator\Model;
 \defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory;
+use Joomla\CMS\Form\Form;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Model\AdminModel;
+use Joomla\Registry\Registry;
 use Joomla\String\StringHelper;
 
 /**
@@ -111,6 +113,28 @@ class TransitionModel extends AdminModel
 	}
 
 	/**
+	 * Method to get a single record.
+	 *
+	 * @param   integer  $pk  The id of the primary key.
+	 *
+	 * @return  CMSObject|boolean  Object on success, false on failure.
+	 *
+	 * @since   4.0.0
+	 */
+	public function getItem($pk = null)
+	{
+		$item = parent::getItem($pk);
+
+		if (property_exists($item, 'options'))
+		{
+			$registry = new Registry($item->options);
+			$item->options = $registry->toArray();
+		}
+
+		return $item;
+	}
+
+	/**
 	 * Method to save the form data.
 	 *
 	 * @param   array  $data  The form data.
@@ -130,35 +154,6 @@ class TransitionModel extends AdminModel
 		if ($pk > 0)
 		{
 			$isNew = false;
-		}
-
-		if ($data['to_stage_id'] == $data['from_stage_id'])
-		{
-			$this->setError(Text::_('COM_WORKFLOW_MSG_FROM_TO_STAGE'));
-
-			return false;
-		}
-
-		$db = $this->getDbo();
-		$query = $db->getQuery(true)
-			->select($db->quoteName('id'))
-			->from($db->quoteName('#__workflow_transitions'))
-			->where($db->quoteName('from_stage_id') . ' = ' . (int) $data['from_stage_id'])
-			->where($db->quoteName('to_stage_id') . ' = ' . (int) $data['to_stage_id']);
-
-		if (!$isNew)
-		{
-			$query->where($db->quoteName('id') . ' <> ' . (int) $data['id']);
-		}
-
-		$db->setQuery($query);
-		$duplicate = $db->loadResult();
-
-		if (!empty($duplicate))
-		{
-			$this->setError(Text::_("COM_WORKFLOW_TRANSITION_DUPLICATE"));
-
-			return false;
 		}
 
 		$workflowID = $app->getUserStateFromRequest($context . '.filter.workflow_id', 'workflow_id', 0, 'int');
@@ -284,5 +279,23 @@ class TransitionModel extends AdminModel
 		}
 
 		return $data;
+	}
+
+	/**
+	 * Trigger the form preparation for the workflow group
+	 *
+	 * @param   Form    $form   A Form object.
+	 * @param   mixed   $data   The data expected for the form.
+	 * @param   string  $group  The name of the plugin group to import (defaults to "content").
+	 *
+	 * @return  void
+	 *
+	 * @see     FormField
+	 * @since   4.0.0
+	 * @throws  \Exception if there is an error in the form event.
+	 */
+	protected function preprocessForm(Form $form, $data, $group = 'workflow')
+	{
+		parent::preprocessForm($form, $data, $group);
 	}
 }

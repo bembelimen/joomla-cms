@@ -32,7 +32,7 @@ CREATE INDEX "#__workflows_idx_modified_by" ON "#__workflows" ("modified_by");
 CREATE INDEX "#__workflows_idx_checked_out" ON "#__workflows" ("checked_out");
 
 INSERT INTO "#__workflows" ("id", "asset_id", "published", "title", "description", "extension", "default", "core", "ordering", "created", "created_by", "modified", "modified_by", "checked_out_time", "checked_out") VALUES
-(1, 0, 1, 'COM_WORKFLOW_DEFAULT_WORKFLOW', '', 'com_content', 1, 1, 1, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP, 0, NULL, 0);
+(1, 0, 1, 'COM_WORKFLOW_DEFAULT_WORKFLOW', '', 'com_content.article', 1, 1, 1, CURRENT_TIMESTAMP, 0, CURRENT_TIMESTAMP, 0, NULL, 0);
 
 --
 -- Table structure for table "#__workflow_associations"
@@ -64,7 +64,6 @@ CREATE TABLE IF NOT EXISTS "#__workflow_stages" (
   "published" smallint NOT NULL  DEFAULT 0,
   "title" varchar(255) NOT NULL,
   "description" text NOT NULL,
-  "condition" bigint DEFAULT 0 NOT NULL,
   "default" smallint NOT NULL  DEFAULT 0,
   "checked_out_time" timestamp without time zone,
   "checked_out" bigint DEFAULT 0 NOT NULL,
@@ -80,11 +79,11 @@ CREATE INDEX "#__workflow_stages_idx_checked_out" ON "#__workflow_stages" ("chec
 -- Dumping data for table "#__workflow_stages"
 --
 
-INSERT INTO "#__workflow_stages" ("id", "asset_id", "ordering", "workflow_id", "published", "title", "description", "condition", "default", "checked_out_time", "checked_out") VALUES
-(1, 0, 1, 1, 1, 'JUNPUBLISHED', '', 0, 1, NULL, 0),
-(2, 0, 2, 1, 1, 'JPUBLISHED', '', 1, 0, NULL, 0),
-(3, 0, 3, 1, 1, 'JTRASHED', '', -2, 0, NULL, 0),
-(4, 0, 4, 1, 1, 'JARCHIVED', '', 2, 0, NULL, 0);
+INSERT INTO "#__workflow_stages" ("id", "asset_id", "ordering", "workflow_id", "published", "title", "description", "default", "checked_out_time", "checked_out") VALUES
+(1, 0, 1, 1, 1, 'JUNPUBLISHED', '', 1, NULL, 0),
+(2, 0, 2, 1, 1, 'JPUBLISHED', '', 0, NULL, 0),
+(3, 0, 3, 1, 1, 'JTRASHED', '', 0, NULL, 0),
+(4, 0, 4, 1, 1, 'JARCHIVED', '', 0, NULL, 0);
 
 --
 -- Table structure for table "#__workflow_transitions"
@@ -100,6 +99,7 @@ CREATE TABLE IF NOT EXISTS "#__workflow_transitions" (
   "description" text NOT NULL,
   "from_stage_id" bigint DEFAULT 0 NOT NULL,
   "to_stage_id" bigint DEFAULT 0 NOT NULL,
+  "options" text NOT NULL,
   "checked_out_time" timestamp without time zone,
   "checked_out" bigint DEFAULT 0 NOT NULL,
   PRIMARY KEY ("id")
@@ -111,21 +111,22 @@ CREATE INDEX "#__workflow_transitions_idx_to_stage_id" ON "#__workflow_transitio
 CREATE INDEX "#__workflow_transitions_idx_workflow_id" ON "#__workflow_transitions" ("workflow_id");
 CREATE INDEX "#__workflow_transitions_idx_checked_out" ON "#__workflow_transitions" ("checked_out");
 
-INSERT INTO "#__workflow_transitions" ("id", "asset_id", "published", "ordering", "workflow_id", "title", "description", "from_stage_id", "to_stage_id", "checked_out_time", "checked_out") VALUES
-(1, 0, 1, 1, 1, 'Unpublish', '', -1, 1, NULL, 0),
-(2, 0, 1, 2, 1, 'Publish', '', -1, 2, NULL, 0),
-(3, 0, 1, 3, 1, 'Trash', '', -1, 3, NULL, 0),
-(4, 0, 1, 4, 1, 'Archive', '', -1, 4, NULL, 0);
+INSERT INTO "#__workflow_transitions" ("id", "asset_id", "published", "ordering", "workflow_id", "title", "description", "from_stage_id", "to_stage_id", "options", "checked_out_time", "checked_out") VALUES
+(1, 0, 1, 1, 1, 'Unpublish', '', -1, 1, '{"publishing":"0"}', NULL, 0),
+(2, 0, 1, 2, 1, 'Publish', '', -1, 2, '{"publishing":"1"}', NULL, 0),
+(3, 0, 1, 3, 1, 'Trash', '', -1, 3, '{"publishing":"-2"}', NULL, 0),
+(4, 0, 1, 4, 1, 'Archive', '', -1, '{"publishing":"2"}', 4, NULL, 0);
 
 --
 -- Creating extension entry
 --
 
 INSERT INTO "#__extensions" ("package_id", "name", "type", "element", "folder", "client_id", "enabled", "access", "protected", "manifest_cache", "params", "checked_out", "checked_out_time", "ordering", "state") VALUES
-(0, 'com_workflow', 'component', 'com_workflow', '', 1, 1, 0, 0, '', '{}', 0, '1970-01-01 00:00:00', 0, 0);
+(0, 'com_workflow', 'component', 'com_workflow', '', 1, 1, 0, 0, '', '{}', 0, '1970-01-01 00:00:00', 0, 0),
+(0, 'plg_workflow_publishing', 'plugin', 'publishing', 'workflow', 0, 1, 1, 0, '', '{}', 0, NULL, 0, 0);
 
 --
 -- Creating Associations for existing content
 --
 INSERT INTO "#__workflow_associations" ("item_id", "stage_id", "extension")
-SELECT "id", CASE WHEN "state" = -2 THEN 3 WHEN "state" = 0 THEN 1 WHEN "state" = 2 THEN 4 ELSE 2 END, 'com_content' FROM "#__content";
+SELECT "id", CASE WHEN "state" = -2 THEN 3 WHEN "state" = 0 THEN 1 WHEN "state" = 2 THEN 4 ELSE 2 END, 'com_content.article' FROM "#__content";

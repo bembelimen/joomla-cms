@@ -113,24 +113,24 @@ class WorkflowModel extends AdminModel
 			$stages = [
 				[
 					'title' => 'JUNPUBLISHED',
-					'condition' => Workflow::CONDITION_UNPUBLISHED,
 					'default' => 1,
-					'transition' => 'Unpublish'
+					'transition' => 'Unpublish',
+					'options' => '{"publishing":"0"}'
 				],
 				[
 					'title' => 'JPUBLISHED',
-					'condition' => Workflow::CONDITION_PUBLISHED,
-					'transition' => 'Publish'
+					'transition' => 'Publish',
+					'options' => '{"publishing":"1"}'
 				],
 				[
 					'title' => 'JTRASHED',
-					'condition' => Workflow::CONDITION_TRASHED,
-					'transition' => 'Trash'
+					'transition' => 'Trash',
+					'options' => '{"publishing":"-2"}'
 				],
 				[
 					'title' => 'JARCHIVED',
-					'condition' => Workflow::CONDITION_ARCHIVED,
-					'transition' => 'Archive'
+					'transition' => 'Archive',
+					'options' => '{"publishing":"2"}'
 				]
 			];
 
@@ -144,7 +144,6 @@ class WorkflowModel extends AdminModel
 				$table->id = 0;
 				$table->title = $stage['title'];
 				$table->workflow_id = $workflow_id;
-				$table->condition = $stage['condition'];
 				$table->published = 1;
 				$table->default = (int) !empty($stage['default']);
 				$table->description = '';
@@ -160,6 +159,7 @@ class WorkflowModel extends AdminModel
 				$transition->published = 1;
 				$transition->from_stage_id = -1;
 				$transition->to_stage_id = (int) $table->id;
+				$transition->options = $stage['options'];
 
 				$transition->store();
 			}
@@ -263,6 +263,10 @@ class WorkflowModel extends AdminModel
 	protected function preprocessForm(Form $form, $data, $group = 'content')
 	{
 		$extension = Factory::getApplication()->input->get('extension');
+
+		$parts = explode('.', $extension);
+
+		$extension = array_shift($parts);
 
 		// Set the access control rules field component value.
 		$form->setFieldAttribute('rules', 'component', $extension);

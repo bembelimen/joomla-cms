@@ -11,6 +11,7 @@ namespace Joomla\Component\Content\Administrator\Model;
 
 \defined('_JEXEC') or die;
 
+use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Associations;
 use Joomla\CMS\Language\Text;
@@ -68,7 +69,6 @@ class ArticlesModel extends ListModel
 				'level',
 				'tag',
 				'rating_count', 'rating',
-				'condition',
 				'stage',
 			);
 
@@ -79,6 +79,30 @@ class ArticlesModel extends ListModel
 		}
 
 		parent::__construct($config);
+	}
+
+	/**
+	 * Get the filter form
+	 *
+	 * @param   array    $data      data
+	 * @param   boolean  $loadData  load current data
+	 *
+	 * @return  Form|null  The \JForm object or null if the form can't be found
+	 *
+	 * @since   3.2
+	 */
+	public function getFilterForm($data = array(), $loadData = true)
+	{
+		$form = parent::getFilterForm($data, $loadData);
+
+		$params = ComponentHelper::getParams('com_content');
+
+		if (!$params->get('workflows_enable'))
+		{
+			$form->removeField('stage', 'filter');
+		}
+
+		return $form;
 	}
 
 	/**
@@ -119,9 +143,6 @@ class ArticlesModel extends ListModel
 
 		$published = $this->getUserStateFromRequest($this->context . '.filter.published', 'filter_published', '');
 		$this->setState('filter.published', $published);
-
-		$condition = $this->getUserStateFromRequest($this->context . '.filter.condition', 'filter_condition', '');
-		$this->setState('filter.condition', $condition);
 
 		$level = $this->getUserStateFromRequest($this->context . '.filter.level', 'filter_level');
 		$this->setState('filter.level', $level);
@@ -203,6 +224,8 @@ class ArticlesModel extends ListModel
 		$query = $db->getQuery(true);
 		$user  = Factory::getUser();
 
+		$params = ComponentHelper::getParams('com_content');
+
 		// Select the required fields from the table.
 		$query->select(
 			$this->getState(
@@ -252,12 +275,11 @@ class ArticlesModel extends ListModel
 					$db->quoteName('ua.name', 'author_name'),
 					$db->quoteName('wa.stage_id', 'stage_id'),
 					$db->quoteName('ws.title', 'stage_title'),
-					$db->quoteName('ws.condition', 'stage_condition'),
 					$db->quoteName('ws.workflow_id', 'workflow_id'),
 				]
 			)
 			->from($db->quoteName('#__content', 'a'))
-			->where($db->quoteName('wa.extension') . ' = ' . $db->quote('com_content'))
+			->where($db->quoteName('wa.extension') . ' = ' . $db->quote('com_content.article'))
 			->join('LEFT', $db->quoteName('#__languages', 'l'), $db->quoteName('l.lang_code') . ' = ' . $db->quoteName('a.language'))
 			->join('LEFT', $db->quoteName('#__content_frontpage', 'fp'), $db->quoteName('fp.content_id') . ' = ' . $db->quoteName('a.id'))
 			->join('LEFT', $db->quoteName('#__users', 'uc'), $db->quoteName('uc.id') . ' = ' . $db->quoteName('a.checked_out'))
@@ -333,27 +355,27 @@ class ArticlesModel extends ListModel
 		// Filter by published state
 		$workflowStage = (string) $this->getState('filter.stage');
 
-		if (is_numeric($workflowStage))
+		if ($params->get('workflows_enable') && is_numeric($workflowStage))
 		{
 			$workflowStage = (int) $workflowStage;
 			$query->where($db->quoteName('wa.stage_id') . ' = :stage')
 				->bind(':stage', $workflowStage, ParameterType::INTEGER);
 		}
 
-		$condition = (string) $this->getState('filter.condition');
+		$published = (string) $this->getState('filter.published');
 
-		if ($condition !== '*')
+		if ($published !== '*')
 		{
-			if (is_numeric($condition))
+			if (is_numeric($published))
 			{
-				$condition = (int) $condition;
-				$query->where($db->quoteName('ws.condition') . ' = :condition')
-					->bind(':condition', $condition, ParameterType::INTEGER);
+				$state = (int) $published;
+				$query->where($db->quoteName('a.state') . ' = :state')
+					->bind(':state', $published, ParameterType::INTEGER);
 			}
 			elseif (!is_numeric($workflowStage))
 			{
 				$query->whereIn(
-					$db->quoteName('ws.condition'),
+					$db->quoteName('a.state'),
 					[
 						ContentComponent::CONDITION_PUBLISHED,
 						ContentComponent::CONDITION_UNPUBLISHED,
@@ -558,65 +580,69 @@ class ArticlesModel extends ListModel
 			return false;
 		}
 
-		$ids = array_column($items, 'stage_id');
-		$ids = ArrayHelper::toInteger($ids);
-		$ids = array_values(array_unique(array_filter($ids)));
+		$stage_ids = ArrayHelper::getColumn($items, 'stage_id');
+		$stage_ids = ArrayHelper::toInteger($stage_ids);
+		$stage_ids = array_values(array_unique(array_filter($stage_ids)));
 
-		$ids[] = -1;
+		$workflow_ids = ArrayHelper::getColumn($items, 'workflow_id');
+		$workflow_ids = ArrayHelper::toInteger($workflow_ids);
+		$workflow_ids = array_values(array_unique(array_filter($workflow_ids)));
 
 		$this->cache[$store] = array();
 
 		try
 		{
-			if (count($ids))
+			if (count($stage_ids) || count($workflow_ids))
 			{
 				Factory::getLanguage()->load('com_workflow', JPATH_ADMINISTRATOR);
 
 				$query = $db->getQuery(true);
 
-				$query->select(
-					[
-						$db->quoteName('t.id', 'value'),
-						$db->quoteName('t.title', 'text'),
-						$db->quoteName('t.from_stage_id'),
-						$db->quoteName('t.to_stage_id'),
-						$db->quoteName('s.id', 'stage_id'),
-						$db->quoteName('s.title', 'stage_title'),
-						$db->quoteName('s.condition', 'stage_condition'),
-						$db->quoteName('s.workflow_id'),
-					]
-				)
-					->from($db->quoteName('#__workflow_transitions', 't'))
-					->join(
-						'LEFT',
-						$db->quoteName('#__workflow_stages', 's'),
-						$db->quoteName('t.from_stage_id') . ' IN (' . implode(',', $query->bindArray($ids)) . ')'
-					)
-					->where(
+				$query	->select(
 						[
-							$db->quoteName('t.to_stage_id') . ' = ' . $db->quoteName('s.id'),
-							$db->quoteName('t.published') . ' = 1',
-							$db->quoteName('s.published') . ' = 1',
-						]
-					)
-					->order($db->quoteName('t.ordering'));
+							$db->quoteName('t.id', 'value'),
+							$db->quoteName('t.title', 'text'),
+							$db->quoteName('t.from_stage_id'),
+							$db->quoteName('t.to_stage_id'),
+							$db->quoteName('s.id', 'stage_id'),
+							$db->quoteName('s.title', 'stage_title'),
+							$db->quoteName('t.workflow_id'),
+						])
+						->from($db->quoteName('#__workflow_transitions', 't'))
+						->innerJoin($db->quoteName('#__workflow_stages', 's'))
+						->where(
+							[
+								$db->quoteName('t.to_stage_id') . ' = ' . $db->quoteName('s.id'),
+								$db->quoteName('t.published') . ' = 1',
+								$db->quoteName('s.published') . ' = 1',
+							]
+						)
+						->order($db->quoteName('t.ordering'))
+						->group($db->quoteName('t.id'));
+
+				$where = [];
+
+				if (count($stage_ids))
+				{
+					$where[] = $db->quoteName('t.from_stage_id') . ' IN (' . implode(',', $query->bindArray($stage_ids)) . ')';
+				}
+
+				if (count($workflow_ids))
+				{
+					$where[] = '(' . $db->quoteName('t.from_stage_id') . ' = -1 AND ' . $db->quoteName('t.workflow_id') . ' IN (' . implode(',', $query->bindArray($workflow_ids)) . '))';
+				}
+
+				$query->where('(' . implode(') OR (', $where) . ')');
 
 				$transitions = $db->setQuery($query)->loadAssocList();
 
-				$workflow = new Workflow(['extension' => 'com_content']);
+				$workflow = new Workflow(['extension' => 'com_content.article']);
 
 				foreach ($transitions as $key => $transition)
 				{
 					if (!$user->authorise('core.execute.transition', 'com_content.transition.' . (int) $transition['value']))
 					{
 						unset($transitions[$key]);
-					}
-					else
-					{
-						// Update the transition text with final state value
-						$conditionName = $workflow->getConditionName((int) $transition['stage_condition']);
-
-						$transitions[$key]['text'] .= ' [' . Text::_($conditionName) . ']';
 					}
 				}
 
