@@ -97,7 +97,7 @@ class ArticlesModel extends ListModel
 
 		$params = ComponentHelper::getParams('com_content');
 
-		if (!$params->get('workflow_enabled'))
+		if (!$params->get('workflow_enabled', 1))
 		{
 			$form->removeField('stage', 'filter');
 		}
@@ -355,7 +355,7 @@ class ArticlesModel extends ListModel
 		// Filter by published state
 		$workflowStage = (string) $this->getState('filter.stage');
 
-		if ($params->get('workflow_enabled') && is_numeric($workflowStage))
+		if ($params->get('workflow_enabled', 1) && is_numeric($workflowStage))
 		{
 			$workflowStage = (int) $workflowStage;
 			$query->where($db->quoteName('wa.stage_id') . ' = :stage')
