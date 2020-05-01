@@ -12,7 +12,6 @@ defined('_JEXEC') or die;
 use Joomla\CMS\Button\FeaturedButton;
 use Joomla\CMS\Button\PublishedButton;
 use Joomla\CMS\Component\ComponentHelper;
-use Joomla\Utilities\ArrayHelper;
 use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Associations;
@@ -23,6 +22,7 @@ use Joomla\CMS\Router\Route;
 use Joomla\CMS\Session\Session;
 use Joomla\Component\Content\Administrator\Extension\ContentComponent;
 use Joomla\Component\Content\Administrator\Helper\ContentHelper;
+use Joomla\Utilities\ArrayHelper;
 
 HTMLHelper::_('behavior.multiselect');
 
@@ -56,7 +56,7 @@ if ($saveOrder && !empty($this->items))
 	HTMLHelper::_('draggablelist.draggable');
 }
 
-$workflow_enabled = ComponentHelper::getParams('com_content')->get('workflows_enable', 1);
+$workflow_enabled = ComponentHelper::getParams('com_content')->get('workflow_enabled', 1);
 
 if ($workflow_enabled) :
 
