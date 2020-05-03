@@ -112,7 +112,7 @@ $userId = $user->id;
 								<td class="text-center d-none d-md-table-cell">
 									<?php
 									$iconClass = '';
-									if (!$canChange)
+									if (!$canChange || $isCore)
 									{
 										$iconClass = ' inactive';
 									}
