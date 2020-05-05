@@ -404,7 +404,7 @@ class PlgWorkflowFeaturing extends CMSPlugin
 
 		if (!$component instanceof WorkflowServiceInterface
 			|| !$component->isWorkflowActive($context)
-			|| !$component->supportFunctionality($this->supportname, $context))
+			|| !$component->supportFunctionality($this->supportFunctionality, $context))
 		{
 			return false;
 		}
