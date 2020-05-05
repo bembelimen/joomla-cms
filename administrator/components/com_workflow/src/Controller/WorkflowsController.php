@@ -119,8 +119,8 @@ class WorkflowsController extends AdminController
 			$this->setMessage(Text::_('COM_WORKFLOW_DISABLE_DEFAULT'), 'warning');
 			$this->setRedirect(
 				Route::_(
-				'index.php?option=' . $this->option . '&view=' . $this->view_list
-				. '&extension=' . $this->extension . ($this->section ? '.' . $this->section : ''), false
+					'index.php?option=' . $this->option . '&view=' . $this->view_list
+					. '&extension=' . $this->extension . ($this->section ? '.' . $this->section : ''), false
 				)
 			);
 
