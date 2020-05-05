@@ -199,12 +199,6 @@ class PlgWorkflowFeaturing extends CMSPlugin
 		// We need the single model context for checking for workflow
 		$singularsection = Inflector::singularize($parts[1]);
 
-		// We only need this on list view
-		if ($singularsection !== $parts[1])
-		{
-			return true;
-		}
-
 		$newcontext = $parts[0] . '.' . $singularsection;
 
 		if (!$app->isClient('administrator') || !$this->isSupported($newcontext))
