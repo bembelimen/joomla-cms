@@ -206,7 +206,7 @@ class PlgWorkflowFeaturing extends CMSPlugin
 			return true;
 		}
 
-		// That's the hard coded list from the AdminController publish method => change, when it's make dynamic in the future
+		// List of releated batch functions we need to hide
 		$states = ['featured', 'unfeatured'];
 
 		$js = "
@@ -255,7 +255,7 @@ class PlgWorkflowFeaturing extends CMSPlugin
 		$value = (int) $transition->options->get('featuring');
 
 		/**
-		 * Here it becomes tricky. We would like to use the component models publish method, so we will
+		 * Here it becomes tricky. We would like to use the component models featured method, so we will
 		 * Execute the normal "onContentBeforeChangeFeatured" plugins. But they could cancel the execution,
 		 * So we have to precheck and cancel the whole transition stuff if not allowed.
 		 */

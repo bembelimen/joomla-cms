@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <form>
 	<fields name="options">
-		<fieldset name="actions"
-							label="COM_WORKFLOW_TRANSITION_ACTIONS_LABEL"
-		>
+		<fieldset name="actions" label="COM_WORKFLOW_TRANSITION_ACTIONS_LABEL">
 			<field
 				name="featuring"
 				type="list"
@@ -15,7 +13,6 @@
 				<option value="0">JNO</option>
 				<option value="1">JYES</option>
 			</field>
-
 		</fieldset>
 	</fields>
 </form>
