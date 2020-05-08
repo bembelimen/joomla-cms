@@ -49,7 +49,7 @@ class PlgWorkflowPublishing extends CMSPlugin
 	 * @var   string
 	 * @since __DEPLOY_VERSION__
 	 */
-	protected $supportname = 'joomla.state';
+	protected $supportname = 'core.state';
 
 	/**
 	 * The form event.
@@ -262,7 +262,12 @@ class PlgWorkflowPublishing extends CMSPlugin
 			return true;
 		}
 
-		$value = (int) $transition->options->get('publishing');
+		$value = $transition->options->get('publishing');
+
+		if (!is_numeric($value))
+		{
+			return true;
+		}
 
 		/**
 		 * Here it becomes tricky. We would like to use the component models publish method, so we will
@@ -310,7 +315,12 @@ class PlgWorkflowPublishing extends CMSPlugin
 
 		$component = $this->app->bootComponent($parts[0]);
 
-		$value = (int) $transition->options->get('publishing');
+		$value = $transition->options->get('publishing');
+
+		if (!is_numeric($value))
+		{
+			return true;
+		}
 
 		$options = [
 			'ignore_request' => true,

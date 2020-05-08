@@ -55,10 +55,8 @@ class ContentComponent extends MVCComponent implements
 
 	/** @var array Supported functionality */
 	protected $supportedFunctionality = [
-		'core.featured' => [
-			'com_content.articles'
-		],
-		'joomla.state' => true,
+		'core.featured' => true,
+		'core.state' => true,
 	];
 
 	/**
