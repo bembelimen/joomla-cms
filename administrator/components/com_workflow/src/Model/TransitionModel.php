@@ -280,9 +280,7 @@ class TransitionModel extends AdminModel
 			$form->setFieldAttribute($field->fieldname, 'filter', 'unset', 'options');
 		}
 
-		$workflow_id = (int) $data['workflow_id'];
-
-		$where = $this->getDbo()->quoteName('workflow_id') . ' = ' . $workflow_id . ' AND ' . $this->getDbo()->quoteName('published') . ' = 1';
+		$where = $this->getDbo()->quoteName('workflow_id') . ' = ' . (int) $data['workflow_id'] . ' AND ' . $this->getDbo()->quoteName('published') . ' = 1';
 
 		$form->setFieldAttribute('from_stage_id', 'sql_where', $where);
 		$form->setFieldAttribute('to_stage_id', 'sql_where', $where);
