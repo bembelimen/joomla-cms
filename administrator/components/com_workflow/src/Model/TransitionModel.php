@@ -311,6 +311,21 @@ class TransitionModel extends AdminModel
 		return $data;
 	}
 
+	public function getWorkflow()
+	{
+		$app = Factory::getApplication();
+
+		$context = $this->option . '.' . $this->name;
+
+		$workflow_id = (int) $app->getUserStateFromRequest($context . '.filter.workflow_id', 'workflow_id', 0, 'int');
+
+		$workflow = $this->getTable('Workflow');
+
+		$workflow->load($workflow_id);
+
+		return (object) $workflow->getProperties();
+	}
+
 	/**
 	 * Trigger the form preparation for the workflow group
 	 *
