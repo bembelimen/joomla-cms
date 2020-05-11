@@ -17,6 +17,7 @@ use Joomla\CMS\MVC\Model\DatabaseModelInterface;
 use Joomla\CMS\MVC\View\ViewInterface;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Table\TableInterface;
+use Joomla\CMS\Workflow\WorkflowPluginTrait;
 use Joomla\CMS\Workflow\WorkflowServiceInterface;
 use Joomla\String\Inflector;
 
@@ -27,6 +28,8 @@ use Joomla\String\Inflector;
  */
 class PlgWorkflowPublishing extends CMSPlugin
 {
+	use WorkflowPluginTrait;
+
 	/**
 	 * Load the language file on instantiation.
 	 *
@@ -49,13 +52,13 @@ class PlgWorkflowPublishing extends CMSPlugin
 	 * @var   string
 	 * @since __DEPLOY_VERSION__
 	 */
-	protected $supportname = 'joomla.state';
+	protected $supportFunctionality = 'core.state';
 
 	/**
 	 * The form event.
 	 *
 	 * @param   Form      $form  The form
-	 * @param   stdClass  $data  The data
+	 * @param   \stdClass  $data  The data
 	 *
 	 * @return  boolean
 	 *
@@ -66,12 +69,16 @@ class PlgWorkflowPublishing extends CMSPlugin
 		$context = $form->getName();
 
 		// Extend the transition form
-		if ($context == 'com_workflow.transition')
+		if ($context === 'com_workflow.transition')
 		{
-			return $this->enhanceTransitionForm($form, $data);
+			$this->enhanceTransitionForm($form, $data);
+
+			return true;
 		}
 
-		return $this->enhanceItemForm($form, $data);
+		$this->enhanceItemForm($form, $data);
+
+		return true;
 	}
 
 	/**
@@ -86,35 +93,14 @@ class PlgWorkflowPublishing extends CMSPlugin
 	 */
 	protected function enhanceTransitionForm(Form $form, $data)
 	{
-		$model = $this->app->bootComponent('com_workflow')
-			->getMVCFactory()->createModel('Workflow', 'Administrator', ['ignore_request' => true]);
+		$workflow = $this->enhanceWorkflowTransitionForm($form, $data);
 
-		$workflow_id = !empty($data->workflow_id) ? (int) $data->workflow_id : (int) $form->getValue('workflow_id');
-
-		if (empty($workflow_id))
-		{
-			$workflow_id = $this->app->input->getInt('workflow_id');
-		}
-
-		$workflow = $model->getItem($workflow_id);
-
-		if (!$this->isSupported($workflow->extension))
+		if (!$workflow)
 		{
 			return true;
 		}
 
-		Form::addFormPath(__DIR__ . '/forms');
-
-		$form->loadFile('workflow_publishing');
-
-		if ($workflow_id)
-		{
-			$form->setFieldAttribute('publishing', 'extension', $workflow->extension, 'options');
-		}
-		else
-		{
-			$form->setFieldAttribute('publishing', 'disabled', 'true', 'options');
-		}
+		$form->setFieldAttribute('publishing', 'extension', $workflow->extension, 'options');
 
 		return true;
 	}
@@ -193,11 +179,13 @@ class PlgWorkflowPublishing extends CMSPlugin
 	/**
 	 * Manipulate the generic list view
 	 *
-	 * @param type $context
-	 * @param type $view
-	 * @param type $result
+	 * @param string $context
+	 * @param ViewInterface $view
+	 * @param string $result
+	 *
+	 * @since   4.0.0
 	 */
-	public function onAfterDisplay(string $context, ViewInterface $view, $result)
+	public function onAfterDisplay(string $context, ViewInterface $view, string $result)
 	{
 		$parts = explode('.', $context);
 
@@ -244,6 +232,8 @@ class PlgWorkflowPublishing extends CMSPlugin
 		";
 
 		$app->getDocument()->addScriptDeclaration($js);
+
+		return true;
 	}
 
 	/**
@@ -254,6 +244,8 @@ class PlgWorkflowPublishing extends CMSPlugin
 	 * @param   object   $transition  The value to change to
 	 *
 	 * @return boolean
+	 *
+	 * @since   4.0.0
 	 */
 	public function onWorkflowBeforeTransition($context, $pks, $transition)
 	{
@@ -262,7 +254,12 @@ class PlgWorkflowPublishing extends CMSPlugin
 			return true;
 		}
 
-		$value = (int) $transition->options->get('publishing');
+		$value = $transition->options->get('publishing');
+
+		if (!is_numeric($value))
+		{
+			return true;
+		}
 
 		/**
 		 * Here it becomes tricky. We would like to use the component models publish method, so we will
@@ -292,6 +289,8 @@ class PlgWorkflowPublishing extends CMSPlugin
 	 * @param   object   $transition  The value to change to
 	 *
 	 * @return boolean
+	 *
+	 * @since   4.0.0
 	 */
 	public function onWorkflowAfterTransition($context, $pks, $transition)
 	{
@@ -310,7 +309,12 @@ class PlgWorkflowPublishing extends CMSPlugin
 
 		$component = $this->app->bootComponent($parts[0]);
 
-		$value = (int) $transition->options->get('publishing');
+		$value = $transition->options->get('publishing');
+
+		if (!is_numeric($value))
+		{
+			return true;
+		}
 
 		$options = [
 			'ignore_request' => true,
@@ -331,7 +335,10 @@ class PlgWorkflowPublishing extends CMSPlugin
 	 * @param   string   $context  The context
 	 * @param   array    $pks      IDs of the items
 	 * @param   int      $value    The value to change to
+	 *
 	 * @return boolean
+	 *
+	 * @since   4.0.0
 	 */
 	public function onContentBeforeChangeState($context, $pks, $value)
 	{
@@ -391,8 +398,10 @@ class PlgWorkflowPublishing extends CMSPlugin
 	/**
 	 * Check if the current plugin should execute workflow related activities
 	 *
-	 * @param type $context
+	 * @param string $context
 	 * @return boolean
+	 *
+	 * @since   4.0.0
 	 */
 	protected function isSupported($context)
 	{
@@ -408,7 +417,7 @@ class PlgWorkflowPublishing extends CMSPlugin
 
 		if (!$component instanceof WorkflowServiceInterface
 			|| !$component->isWorkflowActive($context)
-			|| !$component->supportFunctionality($this->supportname, $context))
+			|| !$component->supportFunctionality($this->supportFunctionality, $context))
 		{
 			return false;
 		}

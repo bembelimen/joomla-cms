@@ -8,7 +8,7 @@
 
 namespace Joomla\CMS\Form\Field;
 
-\defined('JPATH_BASE') or die;
+\defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
@@ -125,18 +125,19 @@ class TransitionField extends ListField
 			->where(
 				[
 					$db->quoteName('t.to_stage_id') . ' = ' . $db->quoteName('s.id'),
-					$db->quoteName('t.to_stage_id') . ' != :stage1',
 					$db->quoteName('s.workflow_id') . ' = ' . $db->quoteName('s2.workflow_id'),
-					$db->quoteName('s2.id') . ' = :stage2',
+					$db->quoteName('s.workflow_id') . ' = ' . $db->quoteName('t.workflow_id'),
+					$db->quoteName('s2.id') . ' = :stage1',
 					$db->quoteName('t.published') . ' = 1',
 					$db->quoteName('s.published') . ' = 1',
 				]
 			)
 			->bind(':stage1', $workflowStage, ParameterType::INTEGER)
-			->bind(':stage2', $workflowStage, ParameterType::INTEGER)
 			->order($db->quoteName('t.ordering'));
 
 		$items = $db->setQuery($query)->loadObjectList();
+
+		Factory::getLanguage()->load('com_workflow', JPATH_ADMINISTRATOR);
 
 		if (\count($items))
 		{
@@ -152,8 +153,6 @@ class TransitionField extends ListField
 
 			// Sort by transition name
 			$items = ArrayHelper::sortObjects($items, 'value', 1, true, true);
-
-			Factory::getLanguage()->load('com_workflow', JPATH_ADMINISTRATOR);
 		}
 
 		// Get workflow stage title

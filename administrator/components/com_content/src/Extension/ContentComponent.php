@@ -53,6 +53,12 @@ class ContentComponent extends MVCComponent implements
 		CategoryServiceTrait::getStateColumnForSection insteadof TagServiceTrait;
 	}
 
+	/** @var array Supported functionality */
+	protected $supportedFunctionality = [
+		'core.featured' => true,
+		'core.state' => true,
+	];
+
 	/**
 	 * The trashed condition
 	 *
