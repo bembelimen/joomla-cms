@@ -119,6 +119,8 @@ class ContentComponent extends MVCComponent implements
 
 		// The layout joomla.content.icons does need a general icon service
 		$this->getRegistry()->register('icon', $this->getRegistry()->getService('contenticon'));
+
+
 	}
 
 	/**

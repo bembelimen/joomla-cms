@@ -10,6 +10,7 @@ namespace Joomla\CMS\Workflow;
 
 \defined('JPATH_PLATFORM') or die;
 
+use Joomla\CMS\Event\AbstractEvent;
 use Joomla\CMS\Extension\ComponentInterface;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Plugin\PluginHelper;
@@ -208,16 +209,22 @@ class Workflow
 
 		PluginHelper::importPlugin('workflow');
 
-		$result = $app->triggerEvent(
+		$eventResult = $app->getDispatcher()->dispatch(
 			'onWorkflowBeforeTransition',
-			[
-				'context' => $this->extension,
-				'pks' => $pks,
-				'transition' => $transition,
-			]
+			AbstractEvent::create(
+				'onWorkflowBeforeTransition',
+				[
+					'eventClass'     => 'Joomla\CMS\Event\Workflow\WorkflowTransitionEvent',
+					'subject'        => $this,
+					'extension'      => $this->extension,
+					'pks'            => $pks,
+					'transition'     => $transition,
+					'stopTransition' => false,
+				]
+			)
 		);
 
-		if (\in_array(false, $result, true))
+		if ($eventResult->getArgument('stopTransition'))
 		{
 			return false;
 		}
@@ -226,13 +233,18 @@ class Workflow
 
 		if ($success)
 		{
-			$app->triggerEvent(
+			$app->getDispatcher()->dispatch(
 				'onWorkflowAfterTransition',
-				[
-					'context' => $this->extension,
-					'pks' => $pks,
-					'transition' => $transition,
-				]
+				AbstractEvent::create(
+					'onWorkflowAfterTransition',
+					[
+						'eventClass'     => 'Joomla\CMS\Event\Workflow\WorkflowTransitionEvent',
+						'subject'        => $this,
+						'extension'      => $this->extension,
+						'pks'            => $pks,
+						'transition'     => $transition
+					]
+				)
 			);
 		}
 

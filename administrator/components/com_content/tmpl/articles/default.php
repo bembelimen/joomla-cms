@@ -56,7 +56,9 @@ if ($saveOrder && !empty($this->items))
 	HTMLHelper::_('draggablelist.draggable');
 }
 
-$workflow_enabled = ComponentHelper::getParams('com_content')->get('workflow_enabled', 1);
+$workflow_enabled  = ComponentHelper::getParams('com_content')->get('workflow_enabled', 1);
+$workflow_state    = false;
+$workflow_featured = false;
 
 if ($workflow_enabled) :
 
@@ -78,6 +80,9 @@ JS;
 $this->document->addScriptDeclaration($js);
 
 HTMLHelper::_('script', 'com_workflow/admin-items-workflow-buttons.js', ['relative' => true, 'version' => 'auto']);
+
+	$workflow_state    = Factory::getApplication()->bootComponent('com_content')->isFunctionalityUsed('core.state', 'com_content.article');
+	$workflow_featured = Factory::getApplication()->bootComponent('com_content')->isFunctionalityUsed('core.featured', 'com_content.article');
 
 endif;
 
@@ -207,7 +212,7 @@ $assoc = Associations::isEnabled();
 											'disabled' => !$canChange
 										];
 
-										if ($workflow_enabled) :
+										if ($workflow_featured) :
 											$options['disabled'] = true;
 										endif;
 
@@ -216,7 +221,7 @@ $assoc = Associations::isEnabled();
 									?>
 								</td>
 								<td class="article-status">
-								<?php if ($workflow_enabled) : ?>
+								<?php if ($workflow_state) : ?>
 									<div class="d-flex align-items-center tbody-icon mr-1 small">
 									<?php
 									$options = [
