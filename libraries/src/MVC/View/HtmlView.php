@@ -205,8 +205,6 @@ class HtmlView extends AbstractView
 
 		$context = $component . '.' . $this->getName();
 
-		$app->triggerEvent('onBeforeDisplay', [$context, $this]);
-
 		$app->getDispatcher()->dispatch(
 			'onBeforeDisplay',
 			AbstractEvent::create(

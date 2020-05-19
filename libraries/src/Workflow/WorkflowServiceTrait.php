@@ -112,7 +112,7 @@ trait WorkflowServiceTrait
 			AbstractEvent::create(
 				'onWorkflowFunctionalityUsed',
 				[
-					'eventClass' => 'Joomla\CMS\Event\Workflow\WorkflowFunctionalityUsedEvent',
+					'eventClass'    => 'Joomla\CMS\Event\Workflow\WorkflowFunctionalityUsedEvent',
 					'subject'       => $this,
 					'extension'     => $extension,
 					'functionality' => $functionality

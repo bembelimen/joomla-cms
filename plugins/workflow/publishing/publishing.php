@@ -17,7 +17,6 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Model\DatabaseModelInterface;
-use Joomla\CMS\MVC\View\ViewInterface;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Table\TableInterface;
 use Joomla\CMS\Workflow\WorkflowPluginTrait;
@@ -62,7 +61,7 @@ class PlgWorkflowPublishing extends CMSPlugin implements SubscriberInterface
 	/**
 	 * The form event.
 	 *
-	 * @param   EventInterface      $event  The event
+	 * @param   EventInterface  $event  The event
 	 *
 	 * @since   __DEPLOY_VERSION__
 	 */
@@ -137,7 +136,7 @@ class PlgWorkflowPublishing extends CMSPlugin implements SubscriberInterface
 		$modelName = $component->getModelName($context);
 
 		$table = $component->getMVCFactory()->createModel($modelName, $this->app->getName(), ['ignore_request' => true])
-			->getTable();
+		                   ->getTable();
 
 		$fieldname = $table->getColumnAlias('published');
 
@@ -184,7 +183,7 @@ class PlgWorkflowPublishing extends CMSPlugin implements SubscriberInterface
 	/**
 	 * Manipulate the generic list view
 	 *
-	 * @param DisplayEvent $event
+	 * @param   DisplayEvent  $event
 	 *
 	 * @since   4.0.0
 	 */
@@ -209,7 +208,13 @@ class PlgWorkflowPublishing extends CMSPlugin implements SubscriberInterface
 		}
 
 		// That's the hard coded list from the AdminController publish method => change, when it's make dynamic in the future
-		$states = ['publish', 'unpublish', 'archive', 'trash', 'report'];
+		$states = [
+			'publish',
+			'unpublish',
+			'archive',
+			'trash',
+			'report'
+		];
 
 		$js = "
 			document.addEventListener('DOMContentLoaded', function()
@@ -249,9 +254,9 @@ class PlgWorkflowPublishing extends CMSPlugin implements SubscriberInterface
 	 */
 	public function onWorkflowBeforeTransition(WorkflowTransitionEvent $event)
 	{
-		$context = $event->getArgument('extension');
+		$context    = $event->getArgument('extension');
 		$transition = $event->getArgument('transition');
-		$pks = $event->getArgument('pks');
+		$pks        = $event->getArgument('pks');
 
 		if (!$this->isSupported($context) || !is_numeric($transition->options->get('publishing')))
 		{
@@ -272,7 +277,11 @@ class PlgWorkflowPublishing extends CMSPlugin implements SubscriberInterface
 		 */
 		$this->app->set('plgWorkflowPublishing.' . $context, $pks);
 
-		$result = $this->app->triggerEvent('onContentBeforeChangeState', [$context, $pks, $value]);
+		$result = $this->app->triggerEvent('onContentBeforeChangeState', [
+			$context,
+			$pks,
+			$value
+		]);
 
 		// Release whitelist, the job is done
 		$this->app->set('plgWorkflowPublishing.' . $context, []);
@@ -296,10 +305,10 @@ class PlgWorkflowPublishing extends CMSPlugin implements SubscriberInterface
 	 */
 	public function onWorkflowAfterTransition(WorkflowTransitionEvent $event)
 	{
-		$context    = $event->getArgument('extension');
-		$extensionName    = $event->getArgument('extensionName');
-		$transition = $event->getArgument('transition');
-		$pks        = $event->getArgument('pks');
+		$context       = $event->getArgument('extension');
+		$extensionName = $event->getArgument('extensionName');
+		$transition    = $event->getArgument('transition');
+		$pks           = $event->getArgument('pks');
 
 		if (!$this->isSupported($context))
 		{
@@ -316,7 +325,7 @@ class PlgWorkflowPublishing extends CMSPlugin implements SubscriberInterface
 		}
 
 		$options = [
-			'ignore_request' => true,
+			'ignore_request'            => true,
 			// We already have triggered onContentBeforeChangeState, so use our own
 			'event_before_change_state' => 'onWorkflowBeforeChangeState'
 		];
@@ -373,7 +382,7 @@ class PlgWorkflowPublishing extends CMSPlugin implements SubscriberInterface
 		/* @var TableInterface */
 		$table = $event->getArgument('1');
 		$isNew = $event->getArgument('2');
-		$data = $event->getArgument('3');
+		$data  = $event->getArgument('3');
 
 		if (!$this->isSupported($context))
 		{
@@ -402,7 +411,8 @@ class PlgWorkflowPublishing extends CMSPlugin implements SubscriberInterface
 	/**
 	 * Check if the current plugin should execute workflow related activities
 	 *
-	 * @param string $context
+	 * @param   string  $context
+	 *
 	 * @return boolean
 	 *
 	 * @since   4.0.0
@@ -474,13 +484,13 @@ class PlgWorkflowPublishing extends CMSPlugin implements SubscriberInterface
 	public static function getSubscribedEvents(): array
 	{
 		return [
-			'onContentPrepareForm'       => 'onContentPrepareForm',
-			'onAfterDisplay'             => 'onAfterDisplay',
-			'onWorkflowBeforeTransition' => 'onWorkflowBeforeTransition',
-			'onWorkflowAfterTransition'  => 'onWorkflowAfterTransition',
-			'onContentBeforeChangeState' => 'onContentBeforeChangeState',
-			'onContentBeforeSave'        => 'onContentBeforeSave',
-			'onWorkflowFunctionalityUsed'   => 'onWorkflowFunctionalityUsed',
+			'onContentPrepareForm'        => 'onContentPrepareForm',
+			'onAfterDisplay'              => 'onAfterDisplay',
+			'onWorkflowBeforeTransition'  => 'onWorkflowBeforeTransition',
+			'onWorkflowAfterTransition'   => 'onWorkflowAfterTransition',
+			'onContentBeforeChangeState'  => 'onContentBeforeChangeState',
+			'onContentBeforeSave'         => 'onContentBeforeSave',
+			'onWorkflowFunctionalityUsed' => 'onWorkflowFunctionalityUsed',
 		];
 	}
 }

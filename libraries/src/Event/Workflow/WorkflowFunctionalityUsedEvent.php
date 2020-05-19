@@ -49,6 +49,4 @@ class WorkflowFunctionalityUsedEvent extends AbstractEvent
 
 		$this->stopPropagation();
 	}
-
-
 }

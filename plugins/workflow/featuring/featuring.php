@@ -61,7 +61,7 @@ class PlgWorkflowFeaturing extends CMSPlugin implements SubscriberInterface
 	/**
 	 * The form event.
 	 *
-	 * @param   EventInterface      $event  The event
+	 * @param   EventInterface  $event  The event
 	 *
 	 * @since   __DEPLOY_VERSION__
 	 */
@@ -163,7 +163,7 @@ class PlgWorkflowFeaturing extends CMSPlugin implements SubscriberInterface
 	/**
 	 * Manipulate the generic list view
 	 *
-	 * @param DisplayEvent $event
+	 * @param   DisplayEvent  $event
 	 *
 	 * @since   4.0.0
 	 */
@@ -282,10 +282,10 @@ class PlgWorkflowFeaturing extends CMSPlugin implements SubscriberInterface
 	 */
 	public function onWorkflowAfterTransition(WorkflowTransitionEvent $event)
 	{
-		$context    = $event->getArgument('extension');
-		$extensionName    = $event->getArgument('extensionName');
-		$transition = $event->getArgument('transition');
-		$pks        = $event->getArgument('pks');
+		$context       = $event->getArgument('extension');
+		$extensionName = $event->getArgument('extensionName');
+		$transition    = $event->getArgument('transition');
+		$pks           = $event->getArgument('pks');
 
 		if (!$this->isSupported($context))
 		{
@@ -359,7 +359,7 @@ class PlgWorkflowFeaturing extends CMSPlugin implements SubscriberInterface
 		/* @var TableInterface */
 		$table = $event->getArgument('1');
 		$isNew = $event->getArgument('2');
-		$data = $event->getArgument('3');
+		$data  = $event->getArgument('3');
 
 		if (!$this->isSupported($context))
 		{
