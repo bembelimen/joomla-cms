@@ -61,7 +61,7 @@ class PlgWorkflowPublishing extends CMSPlugin implements SubscriberInterface
 	/**
 	 * The form event.
 	 *
-	 * @param   EventInterface  $event  The event
+	 * @param EventInterface $event The event
 	 *
 	 * @since   __DEPLOY_VERSION__
 	 */
@@ -88,8 +88,8 @@ class PlgWorkflowPublishing extends CMSPlugin implements SubscriberInterface
 	/**
 	 * Add different parameter options to the transition view, we need when executing the transition
 	 *
-	 * @param   Form      $form  The form
-	 * @param   stdClass  $data  The data
+	 * @param Form     $form The form
+	 * @param stdClass $data The data
 	 *
 	 * @return  boolean
 	 *
@@ -113,8 +113,8 @@ class PlgWorkflowPublishing extends CMSPlugin implements SubscriberInterface
 	 * Disable certain fields in the item  form view, when we want to take over this function in the transition
 	 * Check also for the workflow implementation and if the field exists
 	 *
-	 * @param   Form      $form  The form
-	 * @param   stdClass  $data  The data
+	 * @param Form     $form The form
+	 * @param stdClass $data The data
 	 *
 	 * @return  boolean
 	 *
@@ -136,7 +136,7 @@ class PlgWorkflowPublishing extends CMSPlugin implements SubscriberInterface
 		$modelName = $component->getModelName($context);
 
 		$table = $component->getMVCFactory()->createModel($modelName, $this->app->getName(), ['ignore_request' => true])
-		                   ->getTable();
+											 ->getTable();
 
 		$fieldname = $table->getColumnAlias('published');
 
@@ -183,7 +183,7 @@ class PlgWorkflowPublishing extends CMSPlugin implements SubscriberInterface
 	/**
 	 * Manipulate the generic list view
 	 *
-	 * @param   DisplayEvent  $event
+	 * @param DisplayEvent $event
 	 *
 	 * @since   4.0.0
 	 */
@@ -246,7 +246,7 @@ class PlgWorkflowPublishing extends CMSPlugin implements SubscriberInterface
 	/**
 	 * Check if we can execute the transition
 	 *
-	 * @param   WorkflowTransitionEvent  $event
+	 * @param WorkflowTransitionEvent $event
 	 *
 	 * @return boolean
 	 *
@@ -297,7 +297,7 @@ class PlgWorkflowPublishing extends CMSPlugin implements SubscriberInterface
 	/**
 	 * Change State of an item. Used to disable state change
 	 *
-	 * @param   WorkflowTransitionEvent  $event
+	 * @param WorkflowTransitionEvent $event
 	 *
 	 * @return boolean
 	 *
@@ -340,7 +340,7 @@ class PlgWorkflowPublishing extends CMSPlugin implements SubscriberInterface
 	/**
 	 * Change State of an item. Used to disable state change
 	 *
-	 * @param   EventInterface  $event
+	 * @param EventInterface $event
 	 *
 	 * @return boolean
 	 *
@@ -370,7 +370,7 @@ class PlgWorkflowPublishing extends CMSPlugin implements SubscriberInterface
 	/**
 	 * The save event.
 	 *
-	 * @param   EventInterface  $event
+	 * @param EventInterface $event
 	 *
 	 * @return  boolean
 	 *
@@ -411,7 +411,7 @@ class PlgWorkflowPublishing extends CMSPlugin implements SubscriberInterface
 	/**
 	 * Check if the current plugin should execute workflow related activities
 	 *
-	 * @param   string  $context
+	 * @param string $context
 	 *
 	 * @return boolean
 	 *
@@ -419,6 +419,11 @@ class PlgWorkflowPublishing extends CMSPlugin implements SubscriberInterface
 	 */
 	protected function isSupported($context)
 	{
+		if (!$this->checkWhiteAndBlacklist($context) || !$this->checkExtensionSupport($context, $this->supportFunctionality))
+		{
+			return false;
+		}
+
 		$parts = explode('.', $context);
 
 		// We need at least the extension + view for loading the table fields
@@ -455,10 +460,15 @@ class PlgWorkflowPublishing extends CMSPlugin implements SubscriberInterface
 		return true;
 	}
 
-
+	/**
+	 * If plugin supports the functionality we set the used variable
+	 *
+	 * @param WorkflowFunctionalityUsedEvent $event
+	 *
+	 * @since 4.0.0
+	 */
 	public function onWorkflowFunctionalityUsed(WorkflowFunctionalityUsedEvent $event)
 	{
-
 		$functionality = $event->getArgument('functionality');
 
 		if ($functionality !== 'core.state')
@@ -467,11 +477,6 @@ class PlgWorkflowPublishing extends CMSPlugin implements SubscriberInterface
 		}
 
 		$event->setUsed();
-
-		$extension = $event->getArgument('extension');
-
-
-		return false;
 	}
 
 	/**

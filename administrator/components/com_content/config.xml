@@ -1039,11 +1039,15 @@
 				<option value="0">JNO</option>
 				<option value="1">JYES</option>
 			</field>
-
+		</fieldset>
+		<fieldset
+			name="integration_workflows"
+			label="JWORKFLOW_TITLE"
+		>
 			<field
 				name="workflow_enabled"
 				type="radio"
-				label="JGLOBAL_WORKFLOW_ENABLED_LABEL"
+				label="JWORKFLOW_ENABLED_LABEL"
 				layout="joomla.form.field.radio.switcher"
 				default="1"
 				>
@@ -1052,9 +1056,9 @@
 			</field>
 
 			<field
-				name="workflow_functionality.core.state"
+				name="workflow_functionality_core_state"
 				type="radio"
-				label="JGLOBAL_WORKFLOW_FUNCTIONALITY_CORE_STATE_LABEL"
+				label="JWORKFLOW_FUNCTIONALITY_CORE_STATE_LABEL"
 				layout="joomla.form.field.radio.switcher"
 				default="1"
 				showon="workflow_enabled:1"
@@ -1064,9 +1068,9 @@
 			</field>
 
 			<field
-				name="workflow_functionality.core.featured"
+				name="workflow_functionality_core_featured"
 				type="radio"
-				label="JGLOBAL_WORKFLOW_FUNCTIONALITY_CORE_FEATURED_LABEL"
+				label="JWORKFLOW_FUNCTIONALITY_CORE_FEATURED_LABEL"
 				layout="joomla.form.field.radio.switcher"
 				default="1"
 				showon="workflow_enabled:1"

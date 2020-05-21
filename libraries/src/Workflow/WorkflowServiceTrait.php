@@ -14,6 +14,7 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Factory\MVCFactoryInterface;
 use Joomla\CMS\MVC\Model\WorkflowModelInterface;
 use Joomla\Event\DispatcherAwareInterface;
+use function str_repeat;
 
 \defined('JPATH_PLATFORM') or die;
 
@@ -65,6 +66,17 @@ trait WorkflowServiceTrait
 		return in_array($context, $this->supportedFunctionality[$functionality], true);
 	}
 
+	/**
+	 * Check if the functionality is activated in the component configuration
+	 *
+	 * @param string $functionality
+	 * @param string $extension
+	 *
+	 * @return bool
+	 * @throws \Exception
+	 *
+	 * @since   4.0.0
+	 */
 	public function isFunctionalityActive($functionality, $context): bool
 	{
 		if (!$this->isWorkflowActive($context))
@@ -74,8 +86,9 @@ trait WorkflowServiceTrait
 
 		$parts  = explode('.', $context);
 		$config = ComponentHelper::getParams($parts[0]);
+		$option = 'workflow_functionality_' . str_replace('.', '_', $functionality);
 
-		if (!$config->get('workflow_functionality.' . $functionality, 1))
+		if (!$config->get($option, 1))
 		{
 			return false;
 		}
@@ -83,6 +96,17 @@ trait WorkflowServiceTrait
 		return true;
 	}
 
+	/**
+	 * Check if the functionality is used by a plugin
+	 *
+	 * @param string $functionality
+	 * @param string $extension
+	 *
+	 * @return bool
+	 * @throws \Exception
+	 *
+	 * @since   4.0.0
+	 */
 	public function isFunctionalityUsed($functionality, $extension): bool
 	{
 		static $used = [];
@@ -131,6 +155,8 @@ trait WorkflowServiceTrait
 	 * @param   string  $context  The context of the workflow
 	 *
 	 * @return boolean
+	 *
+	 * @since   4.0.0
 	 */
 	public function getModelName($context): string
 	{

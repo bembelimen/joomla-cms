@@ -61,7 +61,7 @@ class PlgWorkflowFeaturing extends CMSPlugin implements SubscriberInterface
 	/**
 	 * The form event.
 	 *
-	 * @param   EventInterface  $event  The event
+	 * @param EventInterface $event The event
 	 *
 	 * @since   __DEPLOY_VERSION__
 	 */
@@ -89,8 +89,8 @@ class PlgWorkflowFeaturing extends CMSPlugin implements SubscriberInterface
 	 * Disable certain fields in the item form view, when we want to take over this function in the transition
 	 * Check also for the workflow implementation and if the field exists
 	 *
-	 * @param   Form      $form  The form
-	 * @param   stdClass  $data  The data
+	 * @param Form     $form The form
+	 * @param stdClass $data The data
 	 *
 	 * @return  boolean
 	 *
@@ -112,7 +112,7 @@ class PlgWorkflowFeaturing extends CMSPlugin implements SubscriberInterface
 		$modelName = $component->getModelName($context);
 
 		$table = $component->getMVCFactory()->createModel($modelName, $this->app->getName(), ['ignore_request' => true])
-		                   ->getTable();
+											 ->getTable();
 
 		$fieldname = $table->getColumnAlias('featured');
 
@@ -163,7 +163,7 @@ class PlgWorkflowFeaturing extends CMSPlugin implements SubscriberInterface
 	/**
 	 * Manipulate the generic list view
 	 *
-	 * @param   DisplayEvent  $event
+	 * @param DisplayEvent $event
 	 *
 	 * @since   4.0.0
 	 */
@@ -223,7 +223,7 @@ class PlgWorkflowFeaturing extends CMSPlugin implements SubscriberInterface
 	/**
 	 * Check if we can execute the transition
 	 *
-	 * @param   WorkflowTransitionEvent  $event
+	 * @param WorkflowTransitionEvent $event
 	 *
 	 * @return boolean
 	 *
@@ -274,7 +274,7 @@ class PlgWorkflowFeaturing extends CMSPlugin implements SubscriberInterface
 	/**
 	 * Change Feature State of an item. Used to disable feature state change
 	 *
-	 * @param   WorkflowTransitionEvent  $event
+	 * @param WorkflowTransitionEvent $event
 	 *
 	 * @return boolean
 	 *
@@ -317,7 +317,7 @@ class PlgWorkflowFeaturing extends CMSPlugin implements SubscriberInterface
 	/**
 	 * Change Feature State of an item. Used to disable Feature state change
 	 *
-	 * @param   EventInterface  $event
+	 * @param EventInterface $event
 	 *
 	 * @return boolean
 	 *
@@ -347,7 +347,7 @@ class PlgWorkflowFeaturing extends CMSPlugin implements SubscriberInterface
 	/**
 	 * The save event.
 	 *
-	 * @param   EventInterface  $event
+	 * @param EventInterface $event
 	 *
 	 * @return  boolean
 	 *
@@ -388,7 +388,7 @@ class PlgWorkflowFeaturing extends CMSPlugin implements SubscriberInterface
 	/**
 	 * Check if the current plugin should execute workflow related activities
 	 *
-	 * @param   string  $context
+	 * @param string $context
 	 *
 	 * @return boolean
 	 *
@@ -396,6 +396,11 @@ class PlgWorkflowFeaturing extends CMSPlugin implements SubscriberInterface
 	 */
 	protected function isSupported($context)
 	{
+		if (!$this->checkWhiteAndBlacklist($context) || !$this->checkExtensionSupport($context, $this->supportFunctionality))
+		{
+			return false;
+		}
+
 		$parts = explode('.', $context);
 
 		// We need at least the extension + view for loading the table fields
@@ -432,9 +437,15 @@ class PlgWorkflowFeaturing extends CMSPlugin implements SubscriberInterface
 		return true;
 	}
 
+	/**
+	 * If plugin supports the functionality we set the used variable
+	 *
+	 * @param WorkflowFunctionalityUsedEvent $event
+	 *
+	 * @since 4.0.0
+	 */
 	public function onWorkflowFunctionalityUsed(WorkflowFunctionalityUsedEvent $event)
 	{
-
 		$functionality = $event->getArgument('functionality');
 
 		if ($functionality !== 'core.featured')
@@ -443,8 +454,6 @@ class PlgWorkflowFeaturing extends CMSPlugin implements SubscriberInterface
 		}
 
 		$event->setUsed();
-
-		return false;
 	}
 
 	/**

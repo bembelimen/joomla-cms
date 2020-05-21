@@ -43,10 +43,13 @@ class WorkflowFunctionalityUsedEvent extends AbstractEvent
 	 *
 	 * @since   1.0
 	 */
-	public function setUsed()
+	public function setUsed($value = true)
 	{
-		$this->arguments['used'] = true;
+		$this->arguments['used'] = $value;
 
-		$this->stopPropagation();
+		if ($value === true)
+		{
+			$this->stopPropagation();
+		}
 	}
 }
