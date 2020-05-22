@@ -43,11 +43,14 @@ class WorkflowTransitionEvent extends AbstractEvent
 	 *
 	 * @since   1.0
 	 */
-	public function setStopTransition()
+	public function setStopTransition($value = true)
 	{
-		$this->arguments['stopTransition'] = true;
+		$this->arguments['stopTransition'] = $value;
 
-		$this->stopPropagation();
+		if ($value === true)
+		{
+			$this->stopPropagation();
+		}
 	}
 
 

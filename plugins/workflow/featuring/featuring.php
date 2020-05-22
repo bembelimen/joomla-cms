@@ -59,6 +59,26 @@ class PlgWorkflowFeaturing extends CMSPlugin implements SubscriberInterface
 	protected $supportFunctionality = 'core.featured';
 
 	/**
+	 * Returns an array of events this subscriber will listen to.
+	 *
+	 * @return  array
+	 *
+	 * @since   4.0.0
+	 */
+	public static function getSubscribedEvents(): array
+	{
+		return [
+			'onContentPrepareForm'          => 'onContentPrepareForm',
+			'onAfterDisplay'                => 'onAfterDisplay',
+			'onWorkflowBeforeTransition'    => 'onWorkflowBeforeTransition',
+			'onWorkflowAfterTransition'     => 'onWorkflowAfterTransition',
+			'onContentBeforeChangeFeatured' => 'onContentBeforeChangeFeatured',
+			'onContentBeforeSave'           => 'onContentBeforeSave',
+			'onWorkflowFunctionalityUsed'   => 'onWorkflowFunctionalityUsed',
+		];
+	}
+
+	/**
 	 * The form event.
 	 *
 	 * @param EventInterface $event The event
@@ -289,7 +309,7 @@ class PlgWorkflowFeaturing extends CMSPlugin implements SubscriberInterface
 
 		if (!$this->isSupported($context))
 		{
-			return true;
+			return;
 		}
 
 		$component = $this->app->bootComponent($extensionName);
@@ -298,7 +318,7 @@ class PlgWorkflowFeaturing extends CMSPlugin implements SubscriberInterface
 
 		if (!is_numeric($value))
 		{
-			return true;
+			return;
 		}
 
 		$options = [
@@ -311,7 +331,7 @@ class PlgWorkflowFeaturing extends CMSPlugin implements SubscriberInterface
 
 		$model = $component->getMVCFactory()->createModel($modelName, $this->app->getName(), $options);
 
-		return $model->featured($pks, $value);
+		$model->featured($pks, $value);
 	}
 
 	/**
@@ -454,25 +474,5 @@ class PlgWorkflowFeaturing extends CMSPlugin implements SubscriberInterface
 		}
 
 		$event->setUsed();
-	}
-
-	/**
-	 * Returns an array of events this subscriber will listen to.
-	 *
-	 * @return  array
-	 *
-	 * @since   4.0.0
-	 */
-	public static function getSubscribedEvents(): array
-	{
-		return [
-			'onContentPrepareForm'          => 'onContentPrepareForm',
-			'onAfterDisplay'                => 'onAfterDisplay',
-			'onWorkflowBeforeTransition'    => 'onWorkflowBeforeTransition',
-			'onWorkflowAfterTransition'     => 'onWorkflowAfterTransition',
-			'onContentBeforeChangeFeatured' => 'onContentBeforeChangeFeatured',
-			'onContentBeforeSave'           => 'onContentBeforeSave',
-			'onWorkflowFunctionalityUsed'   => 'onWorkflowFunctionalityUsed',
-		];
 	}
 }

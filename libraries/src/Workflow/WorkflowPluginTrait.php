@@ -142,8 +142,9 @@ trait WorkflowPluginTrait
 		$parts = explode('.', $context);
 
 		$component = $this->app->bootComponent($parts[0]);
-
-		if (!$component->isFunctionalityActive($functionality, $context))
+		if (!$component instanceof WorkflowServiceInterface
+			|| !$component->isWorkflowActive($context)
+			|| !$component->isFunctionalityActive($functionality, $context))
 		{
 			return false;
 		}

@@ -59,6 +59,26 @@ class PlgWorkflowPublishing extends CMSPlugin implements SubscriberInterface
 	protected $supportFunctionality = 'core.state';
 
 	/**
+	 * Returns an array of events this subscriber will listen to.
+	 *
+	 * @return  array
+	 *
+	 * @since   4.0.0
+	 */
+	public static function getSubscribedEvents(): array
+	{
+		return [
+			'onContentPrepareForm'        => 'onContentPrepareForm',
+			'onAfterDisplay'              => 'onAfterDisplay',
+			'onWorkflowBeforeTransition'  => 'onWorkflowBeforeTransition',
+			'onWorkflowAfterTransition'   => 'onWorkflowAfterTransition',
+			'onContentBeforeChangeState'  => 'onContentBeforeChangeState',
+			'onContentBeforeSave'         => 'onContentBeforeSave',
+			'onWorkflowFunctionalityUsed' => 'onWorkflowFunctionalityUsed',
+		];
+	}
+
+	/**
 	 * The form event.
 	 *
 	 * @param EventInterface $event The event
@@ -321,7 +341,7 @@ class PlgWorkflowPublishing extends CMSPlugin implements SubscriberInterface
 
 		if (!is_numeric($value))
 		{
-			return true;
+			return;
 		}
 
 		$options = [
@@ -334,7 +354,7 @@ class PlgWorkflowPublishing extends CMSPlugin implements SubscriberInterface
 
 		$model = $component->getMVCFactory()->createModel($modelName, $this->app->getName(), $options);
 
-		return $model->publish($pks, $value);
+		$model->publish($pks, $value);
 	}
 
 	/**
@@ -477,25 +497,5 @@ class PlgWorkflowPublishing extends CMSPlugin implements SubscriberInterface
 		}
 
 		$event->setUsed();
-	}
-
-	/**
-	 * Returns an array of events this subscriber will listen to.
-	 *
-	 * @return  array
-	 *
-	 * @since   4.0.0
-	 */
-	public static function getSubscribedEvents(): array
-	{
-		return [
-			'onContentPrepareForm'        => 'onContentPrepareForm',
-			'onAfterDisplay'              => 'onAfterDisplay',
-			'onWorkflowBeforeTransition'  => 'onWorkflowBeforeTransition',
-			'onWorkflowAfterTransition'   => 'onWorkflowAfterTransition',
-			'onContentBeforeChangeState'  => 'onContentBeforeChangeState',
-			'onContentBeforeSave'         => 'onContentBeforeSave',
-			'onWorkflowFunctionalityUsed' => 'onWorkflowFunctionalityUsed',
-		];
 	}
 }
