@@ -120,7 +120,9 @@ trait WorkflowServiceTrait
 
 		if (!$this->isFunctionalityActive($functionality, $extension))
 		{
-			return false;
+			$used[$cacheKey] = false;
+
+			return $used[$cacheKey];
 		}
 
 		// The container to get the services from
