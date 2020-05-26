@@ -13,14 +13,12 @@ namespace Joomla\CMS\Form\Field;
 use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
-use Joomla\CMS\Profiler\Profiler;
 use Joomla\CMS\Workflow\WorkflowServiceInterface;
-use Joomla\Utilities\ArrayHelper;
 
 /**
  * Form Field class for the Joomla Framework.
  *
- * @since  3.7.0
+ * @since  4.0.0
  */
 class WorkflowComponentSectionsField extends ComponentsField
 {
