@@ -69,7 +69,7 @@ if ($saveOrder)
 								<th scope="col" class="w-1 text-center">
 									<?php echo HTMLHelper::_('searchtools.sort', 'JSTATUS', 's.published', $listDirn, $listOrder); ?>
 								</th>
-								<th scope="col" class="w-1 text-center d-md-table-cell">
+								<th scope="col" class="w-1 text-center">
 									<?php echo Text::_('COM_WORKFLOW_DEFAULT'); ?>
 								</th>
 								<th scope="col" class="w-10">
