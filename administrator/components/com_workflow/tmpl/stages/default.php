@@ -72,7 +72,7 @@ if ($saveOrder)
 								<th scope="col" class="w-1 text-center d-md-table-cell">
 									<?php echo Text::_('COM_WORKFLOW_DEFAULT'); ?>
 								</th>
-								<th scope="col" class="w-10 d-md-table-cell">
+								<th scope="col" class="w-10">
 									<?php echo HTMLHelper::_('searchtools.sort', 'COM_WORKFLOW_NAME', 's.title', $listDirn, $listOrder); ?>
 								</th>
 								<th scope="col" class="w-1 d-none d-md-table-cell">
