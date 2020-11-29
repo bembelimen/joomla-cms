@@ -70,7 +70,7 @@ class PlgFileSystemVirtual extends CMSPlugin implements ProviderInterface
 				'accesslevels' => $accesslevels,
 				'usergroups' => array_values($usergroups)
 			];
-	
+
 			Factory::getDocument()->addScriptOptions('com_media', $config);
 		}
 
@@ -110,30 +110,16 @@ class PlgFileSystemVirtual extends CMSPlugin implements ProviderInterface
 	 */
 	public function getAdapters()
 	{
-		$adapters = [];
-		$directories = $this->params->get('directories', '[{"directory":{"directory": "images"}}]');
+		$adapter = new VirtualAdapter;
 
-		// Do a check if default settings are not saved by user
-		// If not initialize them manually
-		if (is_string($directories))
-		{
-			$directories = json_decode($directories);
-			list($directories) = $directories;
-		}
-
-		foreach ($directories as $directoryEntity)
-		{
-			if ($directoryEntity->directory)
-			{
-				$directoryPath = JPATH_ROOT . '/' . $directoryEntity->directory;
-				$directoryPath = rtrim($directoryPath) . '/';
-				$adapters[]    = new VirtualAdapter();
-			}
-		}
-
-		return $adapters;
+		return [$adapter];
 	}
 
+	/**
+	 * Render a media file
+	 *
+	 * @return void
+	 */
 	public static function onAjaxVirtual()
 	{
 		$app = Factory::getApplication();
@@ -144,10 +130,10 @@ class PlgFileSystemVirtual extends CMSPlugin implements ProviderInterface
 
 		$fileTable->load($id);
 
-        if (empty($fileTable->id) || !in_array($fileTable->access, Factory::getUser()->getAuthorisedViewLevels()))
-        {
-            throw new \Exception(Text::_('JERROR_ALERTNOAUTHOR'), 403);
-        }
+		if (empty($fileTable->id) || !in_array($fileTable->access, Factory::getUser()->getAuthorisedViewLevels()))
+		{
+			throw new \Exception(Text::_('JERROR_ALERTNOAUTHOR'), 403);
+		}
 
 		$app->setHeader('Content-Type', $fileTable->mime);
 		$app->setHeader('Content-Transfer-Encoding', 'Binary');
@@ -161,8 +147,8 @@ class PlgFileSystemVirtual extends CMSPlugin implements ProviderInterface
 
 		$filepath = Path::check(JPATH_SITE . '/' . $fileTable->filepath);
 
-        readfile($filepath);
+		readfile($filepath);
 
-        exit;
+		exit;
 	}
 }

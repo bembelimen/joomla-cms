@@ -163,7 +163,7 @@ class VirtualAdapter implements AdapterInterface
 	/**
 	 * Loads the categories base on a given path
 	 *
-	 * @param string $path
+	 * @param   string $path
 	 *
 	 * @return \Joomla\Component\Media\Site\Service\Category
 	 */
@@ -177,7 +177,7 @@ class VirtualAdapter implements AdapterInterface
 	/**
 	 * Load the category node object based on a path
 	 *
-	 * @param string $path
+	 * @param   string $path
 	 *
 	 * @return CategoryNode
 	 */
@@ -203,13 +203,18 @@ class VirtualAdapter implements AdapterInterface
 	/**
 	 * Load the file object based on a path
 	 *
-	 * @param string $path
+	 * @param   string $path
 	 *
 	 * @return stdClass
 	 */
 	protected function loadFile($path)
 	{
 		$fileTable = $this->loadFileTable($path);
+
+		if (empty($fileTable->id))
+		{
+			throw new FileNotFoundException;
+		}
 
 		return (object) $fileTable->getProperties();
 	}
@@ -235,8 +240,8 @@ class VirtualAdapter implements AdapterInterface
 				$db->quoteName('modified'),
 			]
 		)
-		->from($db->quoteName('#__media_files'))
-		->where($db->quoteName('catid') . ' = ' . (int) $category->id);
+			->from($db->quoteName('#__media_files'))
+			->where($db->quoteName('catid') . ' = ' . (int) $category->id);
 
 		$files = $db->setQuery($query)->loadObjectList();
 
@@ -257,7 +262,8 @@ class VirtualAdapter implements AdapterInterface
 		$categoryTable->load([
 			'extension' => 'com_media',
 			'path' => $cleanpath
-		]);
+			]
+		);
 
 		return $categoryTable;
 	}
@@ -275,7 +281,8 @@ class VirtualAdapter implements AdapterInterface
 		$fileTable->load([
 			'catid' => (int) $category->id,
 			'alias' => $alias
-		]);
+			]
+		);
 
 		return $fileTable;
 	}
@@ -365,7 +372,7 @@ class VirtualAdapter implements AdapterInterface
 
 		$fileTable = Factory::getApplication()->bootComponent('Media')->getMVCFactory()->createModel('File', 'Administrator', ['ignore_request' => true])->getTable('File');
 
-		$file = new \stdClass;;
+		$file = new \stdClass;
 
 		$file->title = File::stripExt($name);
 		$file->extension = File::getExt($name);
@@ -425,7 +432,8 @@ class VirtualAdapter implements AdapterInterface
 	 */
 	public function delete(string $path)
 	{
-		try {
+		try
+		{
 			$categoryTable = $this->loadCategoryTable($path);
 
 			if (empty($categoryTable->id))
@@ -444,8 +452,8 @@ class VirtualAdapter implements AdapterInterface
 			$query = $db->getQuery(true);
 
 			$query	->select($db->quoteName('filepath'))
-					->from($db->quoteName('#__media_files'))
-					->where($db->quoteName('catid') . ' IN(' . implode(',', $catids) . ')');
+				->from($db->quoteName('#__media_files'))
+				->where($db->quoteName('catid') . ' IN(' . implode(',', $catids) . ')');
 
 			$filepaths = $db->setQuery($query)->loadColumn();
 
@@ -491,7 +499,7 @@ class VirtualAdapter implements AdapterInterface
 	 * - height:        The height, when available
 	 * - permission     The permissions set in this item, when core.admin
 	 *
-	 * @param CategoryNode $folder
+	 * @param   CategoryNode $folder
 	 *
 	 * @return stdClass
 	 */
@@ -559,11 +567,6 @@ class VirtualAdapter implements AdapterInterface
 	private function getFileInformation(string $path): \stdClass
 	{
 		$file = $this->loadFile($path);
-
-		if (empty($file->id))
-		{
-			throw new FileNotFoundException;
-		}
 
 		$createDate   = $this->getDate($file->created);
 		$modifiedDate = $this->getDate($file->modified);
