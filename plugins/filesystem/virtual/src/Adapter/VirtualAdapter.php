@@ -125,6 +125,21 @@ class VirtualAdapter implements AdapterInterface
 		// The data to return
 		$data = [];
 
+		// If this is a file, we're good
+		try
+		{
+			$file = $this->getFileInformation($path);
+
+			if ($file)
+			{
+				return [$file];
+			}
+		}
+		catch (FileNotFoundException $e)
+		{
+			// Everything ok
+		}
+
 		$folders = $this->loadCategories($path);
 
 		// Read the folders
@@ -912,7 +927,7 @@ class VirtualAdapter implements AdapterInterface
 		$file = $this->loadFile($path);
 
 		// @TODO use clean method to route to frontend
-		return \str_replace('/administrator', '', Route::_('index.php?option=com_ajax&plugin=virtual&group=filesystem&format=raw&id=' . (int) $file->id . ':' . $file->alias . '.' . $file->extension, true));
+		return 'index.php?option=com_ajax&plugin=virtual&group=filesystem&format=raw&id=' . (int) $file->id . ':' . $file->alias . '.' . $file->extension;
 	}
 
 	/**
