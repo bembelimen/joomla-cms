@@ -182,6 +182,7 @@ class PlgFileSystemVirtual extends CMSPlugin implements ProviderInterface
 				$errorImage->toFile($abspath);
 
 				$fileTable->mime = 'image/jpeg';
+				$fileTable->extension = '.jpg';
 				$fileTable->filesize = filesize($abspath);
 
 				$delete = true;
