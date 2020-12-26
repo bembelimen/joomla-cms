@@ -12,12 +12,17 @@ defined('_JEXEC') or die;
 use Joomla\CMS\Access\Access;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Filesystem\Path;
+use Joomla\CMS\Helper\MediaHelper;
 use Joomla\CMS\Helper\UserGroupsHelper;
 use Joomla\CMS\HTML\HTMLHelper;
+use Joomla\CMS\Image\Filter\Backgroundfill;
+use Joomla\CMS\Image\Image;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Plugin\CMSPlugin;
+use Joomla\CMS\Uri\Uri;
 use Joomla\Component\Media\Administrator\Event\MediaProviderEvent;
 use Joomla\Component\Media\Administrator\Provider\ProviderInterface;
+use Joomla\Filesystem\File;
 use Joomla\Plugin\Filesystem\Virtual\Adapter\VirtualAdapter;
 
 /**
@@ -130,9 +135,61 @@ class PlgFileSystemVirtual extends CMSPlugin implements ProviderInterface
 
 		$fileTable->load($id);
 
-		if (empty($fileTable->id) || !in_array($fileTable->access, Factory::getUser()->getAuthorisedViewLevels()))
+		// Flag for deleting the image after loading it
+		$delete = false;
+
+		$abspath = JPATH_SITE . '/' . $fileTable->filepath;
+
+		if (empty($fileTable->id) || !is_file($abspath) || !in_array($fileTable->access, Factory::getUser()->getAuthorisedViewLevels()))
 		{
-			throw new \Exception(Text::_('JERROR_ALERTNOAUTHOR'), 403);
+			// Special handling for images
+			$filename = $fileTable->title . '.' . $fileTable->extension;
+
+			if (!MediaHelper::isImage($filename))
+			{
+				throw new \Exception(Text::_('JERROR_ALERTNOAUTHOR'), 403);
+			}
+
+			$imagepath = HTMLHelper::_('image', 'plg_filesystem_virtual/error.jpg', '', null, true, 1);
+
+			try
+			{
+				$errorFile = Path::check(substr(JPATH_ROOT, 0, strlen(JPATH_ROOT) - strlen(Uri::root(true))) . $imagepath);
+
+				if (!is_file($errorFile))
+				{
+					throw new \Exception(Text::_('JERROR_ALERTNOAUTHOR'), 403);
+				}
+
+				$imageInfo = getImageSize($abspath);
+
+				if ($imageInfo === false)
+				{
+					throw new \Exception(Text::_('JERROR_ALERTNOAUTHOR'), 403);
+				}
+
+				$errorImage = new Image($errorFile);
+
+				$errorImage->resize($imageInfo[0], $imageInfo[1], false, Image::SCALE_FIT);
+
+				// Joomla default for leftover spaces (when resizing) is black, so we set it to white
+				$filter = new Backgroundfill($errorImage->getHandle());
+
+				$filter->execute(['color' => ['red' => 255, 'green' => 255, 'blue' => 255, 'alpha' => 0]]);
+
+				$abspath = Factory::getApplication()->get('tmp_path') . '/' . uniqid();
+
+				$errorImage->toFile($abspath);
+
+				$fileTable->mime = 'image/jpeg';
+				$fileTable->filesize = filesize($abspath);
+
+				$delete = true;
+			}
+			catch (\Exception $e)
+			{
+				throw new \Exception(Text::_('JERROR_ALERTNOAUTHOR'), 403);
+			}
 		}
 
 		$app->setHeader('Content-Type', $fileTable->mime);
@@ -145,9 +202,20 @@ class PlgFileSystemVirtual extends CMSPlugin implements ProviderInterface
 
 		$app->sendHeaders();
 
-		$filepath = Path::check(JPATH_SITE . '/' . $fileTable->filepath);
+		$filepath = Path::check($abspath);
+
+		// Prevent output buffering for readfile timeouts
+		while (ob_get_level())
+		{
+			ob_end_clean();
+		}
 
 		readfile($filepath);
+
+		if ($delete)
+		{
+			File::delete($filepath);
+		}
 
 		exit;
 	}

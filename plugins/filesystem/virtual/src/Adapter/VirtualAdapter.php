@@ -42,7 +42,7 @@ use Joomla\Utilities\ArrayHelper;
  */
 class VirtualAdapter implements AdapterInterface
 {
-	protected $folderpath = 'media/com_media/files';
+	protected $folderpath = 'media/plg_filesystem_virtual/files';
 
 	/**
 	 * Returns the requested file or folder. The returned object
