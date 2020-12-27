@@ -142,7 +142,8 @@ class PlgFileSystemVirtual extends CMSPlugin implements ProviderInterface
 
 		if (empty($fileTable->id) || !is_file($abspath) || !in_array($fileTable->access, Factory::getUser()->getAuthorisedViewLevels()))
 		{
-			// Special handling for images
+			// Special handling for images (we show an error image)
+			// Can be enhanced for other files if we want (default: throw an exception)
 			$filename = $fileTable->title . '.' . $fileTable->extension;
 
 			if (!MediaHelper::isImage($filename))
