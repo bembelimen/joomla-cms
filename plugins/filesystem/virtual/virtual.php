@@ -154,7 +154,7 @@ class PlgFileSystemVirtual extends CMSPlugin implements ProviderInterface
 
 			try
 			{
-				$errorFile = Path::check(substr(JPATH_ROOT, 0, strlen(JPATH_ROOT) - strlen(Uri::root(true))) . $imagepath);
+				$errorFile = Path::check(JPATH_ROOT . substr($imagepath, strlen(Uri::root(true))));
 
 				if (!is_file($errorFile))
 				{
