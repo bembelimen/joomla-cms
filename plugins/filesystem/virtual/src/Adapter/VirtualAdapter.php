@@ -789,35 +789,27 @@ class VirtualAdapter implements AdapterInterface
 	 */
 	public function move(string $sourcePath, string $destinationPath, bool $force = false): string
 	{
-		// Get absolute paths from relative paths
-		$sourcePath      = Path::clean($this->getLocalPath($sourcePath), '/');
-		$destinationPath = Path::clean($this->getLocalPath($destinationPath), '/');
+		$isFolder = true;
 
-		if (!file_exists($sourcePath))
+		try
 		{
-			throw new FileNotFoundException;
+			$category = $this->loadCategory($sourcePath);
+		}
+		catch (FileNotFoundException $e)
+		{
+			$file = $this->loadFile($sourcePath);
+
+			$isFolder = false;
 		}
 
-		$name     = $this->getFileName($destinationPath);
-		$safeName = $this->getSafeName($name);
-
-		// If the safe name is different normalise the file name
-		if ($safeName != $name)
+		if ($isFolder)
 		{
-			$destinationPath = substr($destinationPath, 0, -strlen($name)) . '/' . $safeName;
-		}
-
-		if (is_dir($sourcePath))
-		{
-			$this->moveFolder($sourcePath, $destinationPath, $force);
+			$this->moveFolder($category, $destinationPath, $force);
 		}
 		else
 		{
 			$this->moveFile($sourcePath, $destinationPath, $force);
 		}
-
-		// Get the relative path
-		$destinationPath = str_replace($this->rootPath, '', $destinationPath);
 
 		return $destinationPath;
 	}
@@ -825,7 +817,7 @@ class VirtualAdapter implements AdapterInterface
 	/**
 	 * Moves a file
 	 *
-	 * @param   string  $sourcePath       Absolute path of source
+	 * @param   string  $file             Absolute path of source
 	 * @param   string  $destinationPath  Absolute path of destination
 	 * @param   bool    $force            Set true to overwrite file if exists
 	 *
@@ -833,26 +825,74 @@ class VirtualAdapter implements AdapterInterface
 	 *
 	 * @since   4.0.0
 	 * @throws  \Exception
-	 *
-	 * @todo Implement
 	 */
 	private function moveFile(string $sourcePath, string $destinationPath, bool $force = false)
 	{
-		if (is_dir($destinationPath))
+		$isFolder = true;
+
+		try
 		{
-			// If the destination is a folder we create a file with the same name as the source
-			$destinationPath = $destinationPath . '/' . $this->getFileName($sourcePath);
+			$category = $this->loadCategory($destinationPath);
+
+			// Here we should move to another folder, so we have to add the filename
+			$destinationPath .= '/' . basename($sourcePath);
+		}
+		catch (FileNotFoundException $e)
+		{
+			// We don't need the file here, but it throws an Exception when not available
+			$this->loadFile($sourcePath);
+
+			$isFolder = false;
 		}
 
-		if (file_exists($destinationPath) && !$force)
+		$table = $this->loadFileTable($sourcePath);
+
+		// If the file already exists => throw an Exception
+		try
 		{
+			$file = $this->loadFile($destinationPath);
+
+			// If we reach this point, the file exists and we throw an error
 			throw new \Exception('Move file is not possible as destination file already exists');
 		}
-
-		if (!File::move($sourcePath, $destinationPath))
+		catch (FileNotFoundException $e)
 		{
-			throw new \Exception('Move file is not possible');
+			// Everything ok, we can move the file
+			$filename = File::stripExt(basename($destinationPath));
+
+			$table->title = $filename;
+			$table->alias = '';
+
+			// Check if we also have to change the category (no need to check again if we already know we move to another folder)
+			if (!$isFolder)
+			{
+				$filecategory = dirname($destinationPath);
+
+				try
+				{
+					$category = $this->loadCategory($filecategory);
+				}
+				catch (FileNotFoundException $e)
+				{
+					// Folder not found, we have to create it
+					$foldername = basename($filecategory);
+					$path = dirname($filecategory) ?: '/';
+
+					$this->createFolder($foldername, $path);
+
+					$category = $this->loadCategory($filecategory);
+				}
+			}
 		}
+
+		// If the category changed, we relink the file
+		if ($table->catid != $category->id)
+		{
+			$table->catid = (int) $category->id;
+		}
+
+		$table->check();
+		$table->store();
 	}
 
 	/**
@@ -869,8 +909,10 @@ class VirtualAdapter implements AdapterInterface
 	 *
 	 * @todo Implement
 	 */
-	private function moveFolder(string $sourcePath, string $destinationPath, bool $force = false)
+	private function moveFolder(stdClass $sourcePath, string $destinationPath, bool $force = false)
 	{
+		$db = Factory::getDbo();
+
 		try
 		{
 			$destinationCategory = $this->loadCategory($destinationPath);
@@ -886,26 +928,43 @@ class VirtualAdapter implements AdapterInterface
 		}
 
 		// TODO check file
+		try
+		{
+			$file = $this->loadFile($destinationPath);
+		}
+		catch (FileNotFoundException $e)
+		{
+			// Everything ok
+		}
 
-		if (is_file($destinationPath) && !File::delete($destinationPath))
+		if (!empty($file->id) && !$force)
 		{
 			throw new \Exception('Move folder is not possible as destination folder is a file and can not be deleted');
 		}
 
-		if (is_dir($destinationPath))
+		// We are in force mode and target category exists, so we just link the files
+		if (!empty($destinationCategory->id))
 		{
-			// We need to bypass exception thrown in JFolder when destination exists
-			// So we only copy it in forced condition, then delete the source to simulate a move
-			if (!Folder::copy($sourcePath, $destinationPath, '', true))
+			$sourceCategory = $this->loadCategoryTable($sourcePath);
+
+			$query = $db->getQuery(true);
+
+			$query	->update($db->quoteName('#__media_files'))
+				->set($query->quoteName('catid') . ' = ' . (int) $destinationCategory->id)
+				->where($query->quoteName('catid') . ' = ' . (int) $sourceCategory->id);
+
+			if (!$db->setQuery($query)->execute())
 			{
 				throw new \Exception('Move folder to an existing destination failed');
 			}
 
 			// Delete the source
-			Folder::delete($sourcePath);
+			$sourceCategory->delete();
 
 			return;
 		}
+
+		// Create the category structure
 
 		// Perform usual moves
 		$value = Folder::move($sourcePath, $destinationPath);
