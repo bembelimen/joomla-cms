@@ -7181,17 +7181,17 @@ class JoomlaInstallerScript
 
 		$files = array(
 			// 3.10 changes
-			'libraries/src/Filesystem/Support/Stringcontroller.php' => 'libraries/src/Filesystem/Support/StringController.php',
-			'libraries/src/Form/Rule/SubFormRule.php' => 'libraries/src/Form/Rule/SubformRule.php',
+			'/libraries/src/Filesystem/Support/Stringcontroller.php' => '/libraries/src/Filesystem/Support/StringController.php',
+			'/libraries/src/Form/Rule/SubFormRule.php' => '/libraries/src/Form/Rule/SubformRule.php',
 			// __DEPLOY_VERSION__
-			'media/vendor/skipto/js/skipTo.js' => 'media/vendor/skipto/js/skipto.js',
+			'/media/vendor/skipto/js/skipTo.js' => '/media/vendor/skipto/js/skipto.js',
 		);
 
 		foreach ($files as $old => $expected)
 		{
-			$status['checked'][] = '/' . $old;
+			$status['checked'][] = $old;
 
-			$oldRealpath = realpath(JPATH_ROOT . '/' . $old);
+			$oldRealpath = realpath(JPATH_ROOT . $old);
 
 			// On Unix without incorrectly cased file.
 			if ($oldRealpath === false)
@@ -7200,7 +7200,7 @@ class JoomlaInstallerScript
 			}
 
 			$oldBasename      = basename($oldRealpath);
-			$newRealpath      = realpath(JPATH_ROOT . '/' . $expected);
+			$newRealpath      = realpath(JPATH_ROOT . $expected);
 			$newBasename      = basename($newRealpath);
 			$expectedBasename = basename($expected);
 
@@ -7208,24 +7208,24 @@ class JoomlaInstallerScript
 			if ($newBasename !== $expectedBasename)
 			{
 				// Rename the file.
-				$status['exist'][] = '/' . $old;
+				$status['exist'][] = $old;
 
 				if ($dryRun === false)
 				{
-					if (!rename(JPATH_ROOT . '/' . $old, JPATH_ROOT . '/' . $old . '.tmp'))
+					if (!rename(JPATH_ROOT . $old, JPATH_ROOT . $old . '.tmp'))
 					{
-						$status['errors'][] = Text::sprintf('FILES_JOOMLA_ERROR_RENAME', '/' . $old, '/' . $old . '.tmp');
+						$status['errors'][] = Text::sprintf('FILES_JOOMLA_ERROR_RENAME', $old, $old . '.tmp');
 
 						continue;
 					}
 
-					if (rename(JPATH_ROOT . '/' . $old . '.tmp', JPATH_ROOT . '/' . $expected))
+					if (rename(JPATH_ROOT . $old . '.tmp', JPATH_ROOT . $expected))
 					{
-						$status['renamed'][] = '/' . $old;
+						$status['renamed'][] = $old;
 					}
 					else
 					{
-						$status['errors'][] = Text::sprintf('FILES_JOOMLA_ERROR_RENAME', '/' . $old, '/' . $expected);
+						$status['errors'][] = Text::sprintf('FILES_JOOMLA_ERROR_RENAME', $old, $expected);
 					}
 				}
 
@@ -7242,24 +7242,24 @@ class JoomlaInstallerScript
 					if (!in_array($expectedBasename, scandir(dirname($newRealpath))))
 					{
 						// Rename the file.
-						$status['exist'][] = '/' . $old;
+						$status['exist'][] = $old;
 
 						if ($dryRun === false)
 						{
-							if (!rename(JPATH_ROOT . '/' . $old, JPATH_ROOT . '/' . $old . '.tmp'))
+							if (!rename(JPATH_ROOT . $old, JPATH_ROOT . $old . '.tmp'))
 							{
-								$status['errors'][] = Text::sprintf('FILES_JOOMLA_ERROR_RENAME', '/' . $old, '/' . $old . '.tmp');
+								$status['errors'][] = Text::sprintf('FILES_JOOMLA_ERROR_RENAME', $old, $old . '.tmp');
 
 								continue;
 							}
 
-							if (rename(JPATH_ROOT . '/' . $old . '.tmp', JPATH_ROOT . '/' . $expected))
+							if (rename(JPATH_ROOT . $old . '.tmp', JPATH_ROOT . $expected))
 							{
-								$status['renamed'][] = '/' . $old;
+								$status['renamed'][] = $old;
 							}
 							else
 							{
-								$status['errors'][] = Text::sprintf('FILES_JOOMLA_ERROR_RENAME', '/' . $old, '/' . $expected);
+								$status['errors'][] = Text::sprintf('FILES_JOOMLA_ERROR_RENAME', $old, $expected);
 							}
 						}
 					}
@@ -7267,17 +7267,17 @@ class JoomlaInstallerScript
 				else
 				{
 					// On Unix with both files: Delete the incorrectly cased file.
-					$status['exist'][] = '/' . $old;
+					$status['exist'][] = $old;
 
 					if ($dryRun === false)
 					{
-						if (unlink(JPATH_ROOT . '/' . $old))
+						if (unlink(JPATH_ROOT . $old))
 						{
-							$status['deleted'][] = '/' . $old;
+							$status['deleted'][] = $old;
 						}
 						else
 						{
-							$status['errors'][] = Text::sprintf('FILES_JOOMLA_ERROR_FILE_FOLDER', '/' . $old);
+							$status['errors'][] = Text::sprintf('FILES_JOOMLA_ERROR_FILE_FOLDER', $old);
 						}
 					}
 				}
