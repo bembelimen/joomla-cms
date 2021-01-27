@@ -471,21 +471,26 @@ class JoomlaInstallerScript
 	 * Delete files that should not exist
 	 *
 	 * @param bool  $dryRun          If set to true, will not actually delete files, but just report their status for use in CLI
-	 * @param bool  $suppressOutput   Set to true to supress echoing any errors, and just return the $status array
+	 * @param bool  $suppressOutput  Set to true to supress echoing any errors, and just return the $status array
 	 *
 	 * @return  array
 	 */
 	public function deleteUnexistingFiles($dryRun = false, $suppressOutput = false)
 	{
 		$status = [
-			'files_exist'     => [],
-			'folders_exist'   => [],
-			'files_deleted'   => [],
-			'folders_deleted' => [],
-			'files_errors'    => [],
-			'folders_errors'  => [],
-			'folders_checked' => [],
-			'files_checked'   => [],
+			'files_checked'      => [],
+			'files_deleted'      => [],
+			'files_errors'       => [],
+			'files_exist'        => [],
+			'folders_checked'    => [],
+			'folders_deleted'    => [],
+			'folders_errors'     => [],
+			'folders_exist'      => [],
+			'wrong_case_checked' => [],
+			'wrong_case_deleted' => [],
+			'wrong_case_errors'  => [],
+			'wrong_case_exist'   => [],
+			'wrong_case_renamed' => [],
 		];
 
 		$files = array(
@@ -6280,17 +6285,26 @@ class JoomlaInstallerScript
 			}
 		}
 
-		$this->fixFilenameCasing();
-
-		if ($suppressOutput === false && \count($status['folders_errors']))
+		if ($suppressOutput === false)
 		{
-			echo implode('<br/>', $status['folders_errors']);
+			if (\count($status['folders_errors']))
+			{
+				echo implode('<br/>', $status['folders_errors']);
+			}
+
+			if (\count($status['files_errors']))
+			{
+				echo implode('<br/>', $status['files_errors']);
+			}
 		}
 
-		if ($suppressOutput === false && \count($status['files_errors']))
-		{
-			echo implode('<br/>', $status['files_errors']);
-		}
+		$wrongCaseStatus = $this->fixFilenameCasing($dryRun, $suppressOutput);
+
+		$status['wrong_case_checked'] = $wrongCaseStatus['checked'];
+		$status['wrong_case_deleted'] = $wrongCaseStatus['deleted'];
+		$status['wrong_case_errors']  = $wrongCaseStatus['errors'];
+		$status['wrong_case_exist']   = $wrongCaseStatus['exist'];
+		$status['wrong_case_renamed'] = $wrongCaseStatus['renamed'];
 
 		return $status;
 	}
@@ -7148,12 +7162,23 @@ class JoomlaInstallerScript
 	/*
 	 * Renames or removes incorrectly cased files.
 	 *
-	 * @return  void
+	 * @param bool  $dryRun          If set to true, will not actually rename of delete files, but just report their status for use in CLI
+	 * @param bool  $suppressOutput  Set to true to supress echoing any errors, and just return the $status array
+	 *
+	 * @return  array
 	 *
 	 * @since   __DEPLOY_VERSION__
 	 */
-	protected function fixFilenameCasing()
+	protected function fixFilenameCasing($dryRun = false, $suppressOutput = false)
 	{
+		$status = [
+			'checked' => [],
+			'deleted' => [],
+			'errors'  => [],
+			'exist'   => [],
+			'renamed' => [],
+		];
+
 		$files = array(
 			// 3.10 changes
 			'libraries/src/Filesystem/Support/Stringcontroller.php' => 'libraries/src/Filesystem/Support/StringController.php',
@@ -7164,6 +7189,8 @@ class JoomlaInstallerScript
 
 		foreach ($files as $old => $expected)
 		{
+			$status['checked'][] = '/' . $old;
+
 			$oldRealpath = realpath(JPATH_ROOT . '/' . $old);
 
 			// On Unix without incorrectly cased file.
@@ -7181,8 +7208,26 @@ class JoomlaInstallerScript
 			if ($newBasename !== $expectedBasename)
 			{
 				// Rename the file.
-				rename(JPATH_ROOT . '/' . $old, JPATH_ROOT . '/' . $old . '.tmp');
-				rename(JPATH_ROOT . '/' . $old . '.tmp', JPATH_ROOT . '/' . $expected);
+				$status['exist'][] = '/' . $old;
+
+				if ($dryRun === false)
+				{
+					if (!rename(JPATH_ROOT . '/' . $old, JPATH_ROOT . '/' . $old . '.tmp'))
+					{
+						$status['errors'][] = Text::sprintf('FILES_JOOMLA_ERROR_RENAME', '/' . $old, '/' . $old . '.tmp');
+
+						continue;
+					}
+
+					if (rename(JPATH_ROOT . '/' . $old . '.tmp', JPATH_ROOT . '/' . $expected))
+					{
+						$status['renamed'][] = '/' . $old;
+					}
+					else
+					{
+						$status['errors'][] = Text::sprintf('FILES_JOOMLA_ERROR_RENAME', '/' . $old, '/' . $expected);
+					}
+				}
 
 				continue;
 			}
@@ -7197,15 +7242,53 @@ class JoomlaInstallerScript
 					if (!in_array($expectedBasename, scandir(dirname($newRealpath))))
 					{
 						// Rename the file.
-						rename(JPATH_ROOT . '/' . $old, JPATH_ROOT . '/' . $old . '.tmp');
-						rename(JPATH_ROOT . '/' . $old . '.tmp', JPATH_ROOT . '/' . $expected);
+						$status['exist'][] = '/' . $old;
+
+						if ($dryRun === false)
+						{
+							if (!rename(JPATH_ROOT . '/' . $old, JPATH_ROOT . '/' . $old . '.tmp'))
+							{
+								$status['errors'][] = Text::sprintf('FILES_JOOMLA_ERROR_RENAME', '/' . $old, '/' . $old . '.tmp');
+
+								continue;
+							}
+
+							if (rename(JPATH_ROOT . '/' . $old . '.tmp', JPATH_ROOT . '/' . $expected))
+							{
+								$status['renamed'][] = '/' . $old;
+							}
+							else
+							{
+								$status['errors'][] = Text::sprintf('FILES_JOOMLA_ERROR_RENAME', '/' . $old, '/' . $expected);
+							}
+						}
 					}
 				}
 				else
 				{
 					// On Unix with both files: Delete the incorrectly cased file.
-					unlink(JPATH_ROOT . '/' . $old);
+					$status['exist'][] = '/' . $old;
+
+					if ($dryRun === false)
+					{
+						if (unlink(JPATH_ROOT . '/' . $old))
+						{
+							$status['deleted'][] = '/' . $old;
+						}
+						else
+						{
+							$status['errors'][] = Text::sprintf('FILES_JOOMLA_ERROR_FILE_FOLDER', '/' . $old);
+						}
+					}
 				}
+			}
+		}
+
+		if ($suppressOutput === false)
+		{
+			if (\count($status['errors']))
+			{
+				echo implode('<br/>', $status['errors']);
 			}
 		}
 	}
