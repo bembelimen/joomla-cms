@@ -130,7 +130,8 @@ class LanguageHelper
 					// Take off 3 letters iso code languages as they can't match browsers' languages and default them to en
 					$obj = new \stdClass;
 					$obj->lang_code = $metadata['tag'];
-					$languages[$key][] = $obj;
+					$languages[$key][$metadata['nativeName']] = $obj;
+					ksort($languages[$key]);
 				}
 			}
 			else
