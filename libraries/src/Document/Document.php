@@ -144,7 +144,9 @@ class Document
      * @var    array
      * @since  1.7.0
      *
-     * @deprecated 5.0  Use WebAssetManager
+     * #deprecated 4.0 will be removed in 6.0
+	 *             Use the web asset manager instead.
+	 *             Example: $webAssetManager->registerScript()
      */
     public $_scripts = array();
 
@@ -154,7 +156,9 @@ class Document
      * @var    array
      * @since  1.7.0
      *
-     * @deprecated 5.0  Use WebAssetManager
+     * #deprecated 4.0 will be removed in 6.0
+	 *             Use the web asset manager instead.
+	 *             Example: $webAssetManager->registerScript()
      */
     public $_script = array();
 
@@ -171,7 +175,9 @@ class Document
      * @var    array
      * @since  1.7.0
      *
-     * @deprecated 5.0  Use WebAssetManager
+     * #deprecated 4.0 will be removed in 6.0
+	 *             Use the web asset manager instead.
+	 *             Example: $webAssetManager->registerStyle()
      */
     public $_styleSheets = array();
 
@@ -181,7 +187,9 @@ class Document
      * @var    array
      * @since  1.7.0
      *
-     * @deprecated 5.0  Use WebAssetManager
+     * #deprecated 4.0 will be removed in 6.0
+	 *             Use the web asset manager instead.
+	 *             Example: $webAssetManager->registerStyle()
      */
     public $_style = array();
 
@@ -337,7 +345,9 @@ class Document
      * @return  static  The document object.
      *
      * @since       1.7.0
-     * @deprecated  5.0 Use the \Joomla\CMS\Document\FactoryInterface instead
+     * #deprecated  4.0 will be removed in 6.0
+	 *              Use the \Joomla\CMS\Document\FactoryInterface instead.
+	 *              Example: Factory::getContainer()->get(FactoryInterface::class)->createDocument('html', $attributes)
      */
     public static function getInstance($type = 'html', $attributes = array())
     {
@@ -496,7 +506,9 @@ class Document
      *
      * @since   1.7.0
      *
-     * @deprecated 5.0  Use WebAssetManager
+     * #deprecated 4.0 will be removed in 6.0
+	 *             Use the web asset manager instead.
+	 *             Example: $webAssetManager->registerScript()
      */
     public function addScript($url, $options = array(), $attribs = array())
     {
@@ -521,7 +533,9 @@ class Document
      *
      * @since   1.7.0
      *
-     * @deprecated 5.0  Use WebAssetManager
+     * #deprecated 4.0 will be removed in 6.0
+	 *             Use the web asset manager instead.
+	 *             Example: $webAssetManager->addInlineScript()
      */
     public function addScriptDeclaration($content, $type = 'text/javascript')
     {
@@ -591,7 +605,9 @@ class Document
      *
      * @since   1.7.0
      *
-     * @deprecated 5.0  Use WebAssetManager
+     * #deprecated 4.0 will be removed in 6.0
+	 *             Use the web asset manager instead.
+	 *             Example: $webAssetManager->registerAndUseStyle()
      */
     public function addStyleSheet($url, $options = array(), $attribs = array())
     {
@@ -621,7 +637,9 @@ class Document
      *
      * @since   1.7.0
      *
-     * @deprecated 5.0  Use WebAssetManager
+     * #deprecated 4.0 will be removed in 6.0
+	 *             Use the web asset manager instead.
+	 *             Example: $webAssetManager->addInlineStyle()
      */
     public function addStyleDeclaration($content, $type = 'text/css')
     {
