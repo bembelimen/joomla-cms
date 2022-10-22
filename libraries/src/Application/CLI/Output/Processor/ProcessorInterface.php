@@ -17,7 +17,8 @@ namespace Joomla\CMS\Application\CLI\Output\Processor;
  * Interface for a command line output processor
  *
  * @since       4.0.0
- * @deprecated  5.0  Use the `joomla/console` package instead
+ * #deprecated  4.0 will be removed in 6.0
+ *              Use the `joomla/console` package together with the ConsoleApplication instead
  */
 interface ProcessorInterface
 {
