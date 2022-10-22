@@ -84,7 +84,10 @@ class CacheController
 	 *
 	 * @since       1.7.0
 	 * @throws      \RuntimeException
-	 * @deprecated  5.0 Use the cache controller factory instead
+	 * #deprecated  4.0 will be removed in 6.0
+	 *              Use the cache controller factory instead by implementing
+	 *              the CacheControllerFactoryAwareInterface in the MVC classes
+	 *              Example: $this->getCacheControllerFactory() or Factory::getContainer()->get(CacheControllerFactoryInterface::class)
 	 */
 	public static function getInstance($type = 'output', $options = array())
 	{
@@ -141,7 +144,10 @@ class CacheController
 	 * @return  array  An array with directory elements
 	 *
 	 * @since       1.7.0
-	 * @deprecated  5.0 Use the cache controller factory instead
+	 * #deprecated  4.0 will be removed in 6.0
+	 *              Use the cache controller factory instead by implementing
+	 *              the CacheControllerFactoryAwareInterface in the MVC classes
+	 *              Example: $this->getCacheControllerFactory() or Factory::getContainer()->get(CacheControllerFactoryInterface::class)
 	 */
 	public static function addIncludePath($path = '')
 	{
