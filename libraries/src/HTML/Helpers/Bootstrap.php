@@ -581,7 +581,9 @@ abstract class Bootstrap
      * @return  void
      *
      * @since   3.0
-     * @deprecated 5.0
+     * #deprecated 4.0 will be removed in 6.0
+	 *             Use the individual components like alert or modal to reduce the amount of loaded scripts
+	 *             Example: Factory::getApplication()->getDocument()->getWebAssetManager()->useScript('bootstrap.alert');
      */
     public static function framework($debug = null): void
     {
