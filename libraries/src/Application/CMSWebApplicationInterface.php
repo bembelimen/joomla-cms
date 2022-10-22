@@ -56,7 +56,9 @@ interface CMSWebApplicationInterface extends SessionAwareWebApplicationInterface
      *
      * @since      4.0.0
      *
-     * @deprecated 5.0 Inject the router or load it from the dependency injection container
+     * #deprecated 4.2 will be removed in 6.0
+	 *             Implement the SiteRouterInterface in your MVC class or load it from the dependency injection container
+	 *             Example:  $this->getSiteRouter() or Factory::getContainer()->get(SiteRouter::class)
      */
     public static function getRouter($name = null, array $options = array());
 

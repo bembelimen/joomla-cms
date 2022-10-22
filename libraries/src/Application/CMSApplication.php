@@ -417,7 +417,8 @@ abstract class CMSApplication extends WebApplication implements ContainerAwareIn
      * @return  mixed  The user state.
      *
      * @since   3.2
-     * @deprecated  5.0  Use get() instead
+     * #deprecated  4.0 will be removed in 6.0
+	 *              Use get() instead
      */
     public function getCfg($varname, $default = null)
     {
@@ -459,7 +460,8 @@ abstract class CMSApplication extends WebApplication implements ContainerAwareIn
      *
      * @since       3.2
      * @throws      \RuntimeException
-     * @deprecated  5.0 Use \Joomla\CMS\Factory::getContainer()->get($name) instead
+     * #deprecated  4.0 will be removed in 6.0
+	 *              Use \Joomla\CMS\Factory::getContainer()->get($name) instead
      */
     public static function getInstance($name = null, $prefix = '\JApplication', Container $container = null)
     {
@@ -601,7 +603,9 @@ abstract class CMSApplication extends WebApplication implements ContainerAwareIn
      *
      * @since      3.2
      *
-     * @deprecated 5.0 Inject the router or load it from the dependency injection container
+     * #deprecated 4.2 will be removed in 6.0
+	 *             Implement the SiteRouterInterface in your MVC class or load it from the dependency injection container
+	 *             Example:  $this->getSiteRouter() or Factory::getContainer()->get(SiteRouter::class)
      */
     public static function getRouter($name = null, array $options = array())
     {
@@ -1038,7 +1042,8 @@ abstract class CMSApplication extends WebApplication implements ContainerAwareIn
      *
      * @since      3.2
      *
-     * @deprecated 5.0 Implement the route functionality in the extending class, this here will be removed without replacement
+     * #deprecated 4.0 will be removed in 6.0
+	 *             Implement the route functionality in the extending class, this here will be removed without replacement
      */
     protected function route()
     {
@@ -1198,7 +1203,8 @@ abstract class CMSApplication extends WebApplication implements ContainerAwareIn
      * @since   4.0.0
      *
      * @throws \Exception
-     * @deprecated 4.2.0  Will be removed in 5.0 without replacement.
+     * #deprecated 4.2.0 will be removed in 6.0
+	 *             Will be removed without replacement.
      */
     protected function isTwoFactorAuthenticationRequired(): bool
     {
@@ -1213,7 +1219,8 @@ abstract class CMSApplication extends WebApplication implements ContainerAwareIn
      * @since   4.0.0
      *
      * @throws \Exception
-     * @deprecated 4.2.0  Will be removed in 5.0 without replacement.
+     * #deprecated 4.2.0 will be removed in 6.0
+	 *             Will be removed without replacement.
      */
     private function hasUserConfiguredTwoFactorAuthentication(): bool
     {
