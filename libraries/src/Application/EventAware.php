@@ -83,7 +83,9 @@ trait EventAware
      *
      * @since       4.0.0
      * @throws      \InvalidArgumentException
-     * @deprecated  5.0
+     * #deprecated  4.0 will be removed in 6.0
+	 *              Dispatch the event through the dispatcher from the application
+	 *              Example: $app->dispatch($event)
      */
     public function triggerEvent($eventName, $args = [])
     {
