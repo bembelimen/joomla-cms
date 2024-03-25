@@ -50,13 +50,14 @@ class ConstraintChecker
     /**
      * Checks whether the passed constraints are matched
      *
-     * @param array $candidate The provided constraints to be checked
+     * @param array $candidate         The provided constraints to be checked
+     * @param int   $minimumStability  The minimum stability required for updating
      *
      * @return  boolean
      *
      * @since   5.1.0
      */
-    public function check(array $candidate)
+    public function check(array $candidate, $minimumStability = Updater::STABILITY_STABLE)
     {
         if (!isset($candidate['targetplatform'])) {
             // targetplatform is required
@@ -89,7 +90,7 @@ class ConstraintChecker
         // Check stability, assume true when not set
         if (
             isset($candidate['stability'])
-            && !$this->checkStability($candidate['stability'])
+            && !$this->checkStability($candidate['stability'], $minimumStability)
         ) {
             $result = false;
         }
@@ -208,19 +209,18 @@ class ConstraintChecker
     /**
      * Check the stability
      *
-     * @param string $stability Stability to check
+     * @param string $stability         Stability to check
+     * @param int    $minimumStability  The minimum stability required for updating
      *
      * @return  boolean
      *
      * @since   5.1.0
      */
-    protected function checkStability(string $stability)
+    protected function checkStability(string $stability, $minimumStability = Updater::STABILITY_STABLE)
     {
-        $minimumStability = ComponentHelper::getParams('com_joomlaupdate')->get('minimum_stability', Updater::STABILITY_STABLE);
-
         $stabilityInt = $this->stabilityToInteger($stability);
 
-        if (($stabilityInt < $minimumStability)) {
+        if ($stabilityInt < $minimumStability) {
             return false;
         }
 
