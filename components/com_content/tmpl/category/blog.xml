@@ -678,6 +678,54 @@
 			</field>
 		</fieldset>
 
+		<fieldset name="filter"
+			label="Filter"
+		>
+			<field
+				name="filter_cfields"
+				type="subform"
+				label="Custom Fields Filter"
+				multiple="true"
+				layout="joomla.form.field.subform.repeatable-table"
+				max="5"
+			>
+				<form>
+					<field
+						name="field_id"
+						type="sql"
+						label="Feld"
+						sql_select="f.id as value, CONCAT(f.title, ' (', IFNULL(fg.title, 'Fields'), ')') as field_id"
+						sql_from="#__fields f"
+						sql_join="#__fields_groups fg ON fg.context = 'com_content.article' AND f.group_id = fg.id"
+						sql_where="f.context = 'com_content.article' AND f.only_use_in_subform = 0 AND f.state >= 0"
+						sql_ordering="fg.order, f.order"
+					/>
+					<field
+						name="operator"
+						type="list"
+						label="Compare Operator"
+						validate="options"
+					>
+						<option value="=">Equals</option>
+						<!-- <option value="!=">Not equals</option> -->
+						<option value="gt">Greater than</option>
+						<option value="lt">Less than</option>
+						<option value="ge">Greater than or equals</option>
+						<option value="le">Less than or equals</option>
+						<option value="LIKE">Contains</option>
+						<!-- <option value="NOT LIKE">Does not contain</option> -->
+						<option value="IN">In</option>
+						<!-- <option value="NOT IN">Not in</option> -->
+					</field>
+					<field
+						name="value"
+						type="text"
+						label="Value"
+					/>
+				</form>
+			</field>
+		</fieldset>
+
 		<fieldset name="integration" label="COM_MENUS_INTEGRATION_FIELDSET_LABEL">
 			<field
 				name="show_feed_link"

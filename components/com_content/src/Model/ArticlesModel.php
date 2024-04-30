@@ -298,6 +298,35 @@ class ArticlesModel extends ListModel
 
         $query->join($frontpageJoin, $db->quoteName('#__content_frontpage', 'fp'), $db->quoteName('fp.content_id') . ' = ' . $db->quoteName('a.id'));
 
+        // Filter for custom fields
+        $cfields = (array) $this->getState('filter.cfields');
+
+        if (!empty($cfields) && is_array($cfields)) {
+            $mappedTables = [];
+
+            foreach ($cfields as $cfield) {
+                // We need a certain amount of data to work with
+                if (empty($cfield['field_id']) || !isset($cfield['value']) || !strlen($cfield['value'])) {
+                    continue;
+                }
+
+                // Only join once for each field
+                if (!isset($mappedTables[$cfield['field_id']])) {
+                    $query->join('INNER', $db->quoteName('#__fields', 'cf' . (int) $cfield['field_id']) . ',' . $db->quoteName('#__fields_values', 'cfv' . (int) $cfield['field_id']))
+                        ->where($db->quoteName('cfv' . (int) $cfield['field_id'] . '.field_id') . ' = ' . $db->quoteName('cf' . (int) $cfield['field_id'] . '.id'))
+                        ->where($db->quoteName('cfv' . (int) $cfield['field_id'] . '.item_id') . ' = ' . $db->quoteName('a.id'))
+                        ->where($db->quoteName('cf' . (int) $cfield['field_id'] . '.state') . ' = 1')
+                        ->where($db->quoteName('cfv' . (int) $cfield['field_id'] . '.field_id') . ' = :fieldId' . (int) $cfield['field_id'])
+                        ->bind(':fieldId' . (int) $cfield['field_id'], $cfield['field_id']);
+
+                    $mappedTables[$cfield['field_id']] = true;
+                }
+
+                $query->where($db->quoteName('cfv' . (int) $cfield['field_id'] . '.value') . ' = :fieldValue' . (int) $cfield['field_id'])
+                    ->bind(':fieldValue' . (int) $cfield['field_id'], $cfield['value']);
+            }
+        }
+
         if (PluginHelper::isEnabled('content', 'vote')) {
             // Join on voting table
             $query->select(

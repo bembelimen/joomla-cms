@@ -217,6 +217,13 @@ class CategoryModel extends ListModel
 
         // Set the featured articles state
         $this->setState('filter.featured', $params->get('show_featured'));
+
+        // Filter from the menu item
+        $cfields = (array) $params->get('filter_cfields', []);
+
+        if (!empty($cfields)) {
+            $this->setState('filter.cfields', $cfields);
+        }
     }
 
     /**
@@ -245,6 +252,7 @@ class CategoryModel extends ListModel
             $model->setState('list.direction', $this->getState('list.direction'));
             $model->setState('list.filter', $this->getState('list.filter'));
             $model->setState('filter.tag', $this->getState('filter.tag'));
+            $model->setState('filter.cfields', $this->getState('filter.cfields'));
 
             // Filter.subcategories indicates whether to include articles from subcategories in the list or blog
             $model->setState('filter.subcategories', $this->getState('filter.subcategories'));
