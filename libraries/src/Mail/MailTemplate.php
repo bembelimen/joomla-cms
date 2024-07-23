@@ -306,7 +306,7 @@ class MailTemplate
 
                 // Add the logo to the mail as inline attachement
                 if ($logo = (string) $config->get('mail_logoFile', '')) {
-                    $logo = Path::clean(JPATH_ROOT . '/' . htmlspecialchars(HTMLHelper::cleanImageURL($logo)->url));
+                    $logo = Path::check(JPATH_ROOT . '/' . urldecode(HTMLHelper::cleanImageURL($logo)->url));
                     if (is_file($logo)) {
                         # Attach the logo as inline attachement
                         $this->mailer->addAttachment($logo, basename($logo), 'base64', mime_content_type($logo), 'inline');
