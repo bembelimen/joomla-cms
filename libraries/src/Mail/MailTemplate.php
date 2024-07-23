@@ -305,7 +305,7 @@ class MailTemplate
                 $this->addLayoutTemplateData(['siteName' => $app->get('sitename')]);
 
                 // Add the logo to the mail as inline attachement
-                if ($logo = (string) $config->get('mail_logoFile', '')) {
+                if ($logo = (string) $config->get('mail_logofile', '')) {
                     $logo = Path::check(JPATH_ROOT . '/' . HTMLHelper::cleanImageURL($logo)->url);
                     if (is_file(urldecode($logo))) {
                         # Attach the logo as inline attachement
