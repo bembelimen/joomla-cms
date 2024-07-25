@@ -86,9 +86,9 @@ class TemplateModel extends AdminModel
 
         if ($params->get('mail_style', 'plaintext') == 'plaintext') {
             $form->removeField('htmlbody');
-            $form->removeField('disable_htmllayout', 'params');
+            $form->removeField('enable_htmllayout', 'params');
             $form->removeField('htmllayout', 'params');
-            $form->removeField('disable_logofile', 'params');
+            $form->removeField('enable_logofile', 'params');
         }
 
         if ($params->get('mail_style', 'plaintext') == 'html') {
@@ -109,9 +109,9 @@ class TemplateModel extends AdminModel
             $form->removeField('smtpauth', 'params');
             $form->removeField('smtpuser', 'params');
             $form->removeField('smtppass', 'params');
-            $form->removeField('disable_htmllayout', 'params');
+            $form->removeField('enable_htmllayout', 'params');
             $form->removeField('htmllayout', 'params');
-            $form->removeField('disable_logofile', 'params');
+            $form->removeField('enable_logofile', 'params');
         }
 
         if (!$params->get('copy_mails')) {

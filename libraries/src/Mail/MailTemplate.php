@@ -263,10 +263,10 @@ class MailTemplate
             $replyToName = $params->get('replytoname', $replyToName);
         }
 
-        $useLayout   = $config->get('disable_htmllayout', '1');
+        $useLayout   = $config->get('enable_htmllayout', '1');
 
         if ((int) $config->get('alternative_mailconfig', 0) === 1) {
-            $useLayout   = $params->get('disable_htmllayout', $useLayout);
+            $useLayout   = $params->get('enable_htmllayout', $useLayout);
         }
 
         $app->triggerEvent('onMailBeforeRendering', [$this->template_id, &$this]);
@@ -318,7 +318,7 @@ class MailTemplate
                 // Check alternative mailconfig
                 if ((int) $config->get('alternative_mailconfig', 0) === 1) {
                     $layout = $params->get('htmllayout', $layout);
-                    $logo   = $params->get('disable_logofile', 1) ? $logo : '' ;
+                    $logo   = $params->get('enable_logofile', 1) ? $logo : '' ;
                 }
 
                 // Add the logo to the mail as inline attachement
