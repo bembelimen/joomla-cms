@@ -2326,6 +2326,30 @@ class JoomlaInstallerScript
             '/administrator/components/com_admin/sql/updates/postgresql/4.4.4-2024-03-28.sql',
             '/administrator/modules/mod_post_installation_messages/mod_post_installation_messages.php',
             '/media/vendor/punycode/LICENSE-MIT.txt',
+            // From 5.1.0 to 5.1.1
+            '/libraries/vendor/cweagans/composer-patches/LICENSE.md',
+            '/libraries/vendor/cweagans/composer-patches/src/PatchEvent.php',
+            '/libraries/vendor/cweagans/composer-patches/src/PatchEvents.php',
+            '/libraries/vendor/cweagans/composer-patches/src/Patches.php',
+            '/libraries/vendor/cweagans/composer-patches/tests/PatchEventTest.php',
+            '/libraries/vendor/laminas/laminas-diactoros/PATCHES.txt',
+            // From 5.1.2 to 5.1.3
+            '/libraries/vendor/joomla/application/rector.php',
+            '/libraries/vendor/joomla/console/.drone.jsonnet',
+            '/libraries/vendor/joomla/console/.drone.yml',
+            '/libraries/vendor/joomla/database/.drone.jsonnet',
+            '/libraries/vendor/joomla/database/.drone.yml',
+            '/libraries/vendor/joomla/database/phpunit.appveyor_sql2012sp1.xml.dist',
+            '/libraries/vendor/joomla/database/phpunit.appveyor_sql2014.xml.dist',
+            '/libraries/vendor/joomla/database/phpunit.appveyor_sql2017.xml.dist',
+            '/libraries/vendor/joomla/database/phpunit.mariadb.xml.dist',
+            '/libraries/vendor/joomla/database/phpunit.mysql.xml.dist',
+            '/libraries/vendor/joomla/database/phpunit.mysqli.xml.dist',
+            '/libraries/vendor/joomla/database/phpunit.pgsql.xml.dist',
+            '/libraries/vendor/joomla/database/phpunit.sqlite.xml.dist',
+            '/libraries/vendor/joomla/database/phpunit.sqlsrv.xml.dist',
+            '/libraries/vendor/joomla/session/.drone.jsonnet',
+            '/libraries/vendor/joomla/session/.drone.yml',
         ];
 
         $folders = [
@@ -2585,6 +2609,11 @@ class JoomlaInstallerScript
             '/libraries/src/Event/Router',
             // From 5.1.0-beta2 to 5.1.0-rc1
             '/media/vendor/punycode',
+            // From 5.1.0 to 5.1.1
+            '/libraries/vendor/cweagans/composer-patches/tests',
+            '/libraries/vendor/cweagans/composer-patches/src',
+            '/libraries/vendor/cweagans/composer-patches',
+            '/libraries/vendor/cweagans',
         ];
 
         $status['files_checked']   = $files;
