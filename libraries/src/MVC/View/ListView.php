@@ -156,8 +156,10 @@ class ListView extends HtmlView
         // Prepare view data
         $this->initializeView();
 
+        $errors = $this->get('Errors');
+
         // Check for errors.
-        if (\count($errors = $this->get('Errors'))) {
+        if (!empty($errors)) {
             throw new GenericDataException(implode("\n", $errors), 500);
         }
 
