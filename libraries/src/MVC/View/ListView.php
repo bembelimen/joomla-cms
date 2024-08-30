@@ -94,6 +94,13 @@ class ListView extends HtmlView
     protected $toolbarIcon;
 
     /**
+     * The flag which determine whether we want to show archive button
+     *
+     * @var boolean
+     */
+    protected $supportsArchive = false;
+
+    /**
      * The flag which determine whether we want to show batch button
      *
      * @var boolean
@@ -106,6 +113,15 @@ class ListView extends HtmlView
      * @var string
      */
     protected $helpLink;
+
+    /**
+     * Is this view an Empty State
+     *
+     * @var   boolean
+     *
+     * @since __DEPLOY_VERSION__
+     */
+    private $isEmptyState = false;
 
     /**
      * Constructor
@@ -163,8 +179,14 @@ class ListView extends HtmlView
             throw new GenericDataException(implode("\n", $errors), 500);
         }
 
-        // Build toolbar
-        $this->addToolbar();
+        if (!\count($this->items) && $this->isEmptyState = $this->get('IsEmptyState')) {
+            $this->setLayout('emptystate');
+        }
+
+        // We don't need toolbar in the modal window.
+        if ($this->getLayout() !== 'modal') {
+            $this->addToolbar();
+        }
 
         parent::display($tpl);
     }
@@ -210,7 +232,7 @@ class ListView extends HtmlView
         $user  = $this->getCurrentUser();
 
         // Get the toolbar object instance
-        $bar = $this->getDocument()->getToolbar();
+        $toolbar = $this->getDocument()->getToolbar();
 
         $viewName         = $this->getName();
         $singularViewName = InflectorFactory::create()->build()->singularize($viewName);
@@ -218,59 +240,73 @@ class ListView extends HtmlView
         ToolbarHelper::title(Text::_($this->toolbarTitle), $this->toolbarIcon);
 
         if ($canDo->get('core.create')) {
-            ToolbarHelper::addNew($singularViewName . '.add');
+            $toolbar->addNew($singularViewName . '.add');
         }
 
-        if (($canDo->get('core.edit')) || ($canDo->get('core.edit.own'))) {
-            ToolbarHelper::editList($singularViewName . '.edit');
-        }
+        if (!$this->isEmptyState && $canDo->get('core.edit.state')) {
+            /** @var  DropdownButton $dropdown */
+            $dropdown = $toolbar->dropdownButton('status-group', 'JTOOLBAR_CHANGE_STATUS')
+                ->toggleSplit(false)
+                ->icon('icon-ellipsis-h')
+                ->buttonClass('btn btn-action')
+                ->listCheck(true);
 
-        if ($canDo->get('core.edit.state')) {
-            ToolbarHelper::publish($viewName . '.publish', 'JTOOLBAR_PUBLISH', true);
-            ToolbarHelper::unpublish($viewName . '.unpublish', 'JTOOLBAR_UNPUBLISH', true);
+            $childBar = $dropdown->getChildToolbar();
+
+            $childBar->publish($viewName . '.publish')->listCheck(true);
+            $childBar->unpublish($viewName . '.unpublish')->listCheck(true);
 
             if (isset($this->items[0]->featured)) {
-                ToolbarHelper::custom($viewName . '.featured', 'featured', '', 'JFEATURE', true);
-                ToolbarHelper::custom($viewName . '.unfeatured', 'unfeatured', '', 'JUNFEATURE', true);
+                $childBar->standardButton('featured', 'JFEATURE', $viewName . '.featured')->listCheck(true);
+                $childBar->standardButton('unfeatured', 'JUNFEATURE', $viewName . '.unfeatured')->listCheck(true);
             }
 
-            ToolbarHelper::archiveList($viewName . '.archive');
-            ToolbarHelper::checkin($viewName . '.checkin');
+            if ($this->supportsArchive) {
+                $childBar->archive($viewName . '.archive')->listCheck(true);
+            }
+
+            if ($user->authorise('core.admin')) {
+                $childBar->checkin($viewName . '.checkin');
+            }
+
+            if ($this->state->get('filter.published') != -2) {
+                $childBar->trash($viewName . '.trash')->listCheck(true);
+            }
+
+            // Add a batch button
+            if ($this->supportsBatch && $user->authorise('core.create', $this->option)
+                && $user->authorise('core.create', $this->option)
+                && $user->authorise('core.edit', $this->option)
+            ) {
+                $childBar->popupButton('batch', 'JTOOLBAR_BATCH')
+                    ->popupType('inline')
+                    ->textHeader(Text::_($this->option . '_BATCH_OPTIONS'))
+                    ->url('#joomla-dialog-batch')
+                    ->modalWidth('800px')
+                    ->modalHeight('fit-content')
+                    ->listCheck(true);
+            }
         }
 
-        // Add a batch button
         if (
-            $this->supportsBatch && $user->authorise('core.create', $this->option)
-            && $user->authorise('core.edit', $this->option)
-            && $user->authorise('core.edit.state', $this->option)
-        ) {
-            $title = Text::_('JTOOLBAR_BATCH');
-
-            // Instantiate a new LayoutFile instance and render the popup button
-            $layout = new FileLayout('joomla.toolbar.popup');
-
-            $dhtml = $layout->render(['title' => $title]);
-            $bar->appendButton('Custom', $dhtml, 'batch');
-        }
-
-        if (
-            $canDo->get('core.delete') &&
+            !$this->isEmptyState
+            && $canDo->get('core.delete') &&
             (
                 $this->state->get('filter.state') == -2 ||
                 $this->state->get('filter.published') == -2
             )
         ) {
-            ToolbarHelper::deleteList('JGLOBAL_CONFIRM_DELETE', $viewName . '.delete', 'JTOOLBAR_DELETE_FROM_TRASH');
-        } elseif ($canDo->get('core.edit.state')) {
-            ToolbarHelper::trash($viewName . '.trash');
+            $toolbar->delete($viewName . '.delete', 'JTOOLBAR_DELETE_FROM_TRASH')
+                ->message('JGLOBAL_CONFIRM_DELETE')
+                ->listCheck(true);
         }
 
         if ($user->authorise('core.admin', $this->option) || $user->authorise('core.options', $this->option)) {
-            ToolbarHelper::preferences($this->option);
+            $toolbar->preferences($this->option);
         }
 
         if ($this->helpLink) {
-            ToolbarHelper::help($this->helpLink);
+            $toolbar->help($this->helpLink);
         }
     }
 }
