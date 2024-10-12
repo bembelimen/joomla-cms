@@ -10,6 +10,7 @@
 
 namespace Joomla\Component\Templates\Administrator\Model;
 
+use JLoader;
 use Joomla\CMS\Application\ApplicationHelper;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
@@ -557,6 +558,38 @@ class StyleModel extends AdminModel
 
             if ($n > 0) {
                 $app->enqueueMessage(Text::plural('COM_TEMPLATES_MENU_CHANGED', $n));
+            }
+        }
+
+        // Allow the template to handle stuff after the style is saved.
+        $template = $table->template;
+
+        $basePath   = ($table->client_id) ? JPATH_ADMINISTRATOR : JPATH_SITE;
+        $helperFile = $basePath . '/templates/' . $template . '/helper.php';
+
+        if (is_file($helperFile)) {
+            if (strpos($template, '_')) {
+                $parts = explode('_', $template);
+            } elseif (strpos($template, '-')) {
+                $parts = explode('-', $template);
+            }
+    
+            if ($parts) {
+                $class = 'Tpl';
+    
+                foreach ($parts as $part) {
+                    $class .= ucfirst($part);
+                }
+    
+                $class .= 'Helper';
+            } else {
+                $class = 'Tpl' . ucfirst($template) . 'Helper';
+            }
+
+            JLoader::register($class, $helperFile);
+
+            if (method_exists($class, 'onTemplateStyleAfterSave')) {
+                \call_user_func_array($class . '::onTemplateStyleAfterSave', [$table]);
             }
         }
 
