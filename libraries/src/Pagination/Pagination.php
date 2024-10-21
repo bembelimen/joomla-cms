@@ -137,6 +137,14 @@ class Pagination
     protected $data;
 
     /**
+     * The pagination options
+     *
+     * @var array
+     * @since __DEPLOY_VERSION__
+     */
+    protected $options = [];
+
+    /**
      * Constructor.
      *
      * @param   integer          $total       The total number of items.
@@ -205,6 +213,62 @@ class Pagination
         }
 
         $this->setUrlParamsFromRequest();
+    }
+
+    /**
+     * Set the pagination option
+     *
+     * @param array $options  The options to set
+     *
+     * @return void
+     *
+     * @since __DEPLOY_VERSION__
+     */
+    public function setOptions(array $options)
+    {
+        $this->options = $options;
+    }
+
+    /**
+     * Get the pagination options
+     *
+     * @return array
+     *
+     * @since __DEPLOY_VERSION__
+     */
+    public function getOptions()
+    {
+        return $this->options;
+    }
+
+    /**
+     * Set a single pagination option
+     *
+     * @param string $key  The option key
+     * @param mixed $value The option value
+     *
+     * @return void
+     *
+     * @since __DEPLOY_VERSION__
+     */
+    public function addOption($key, $value)
+    {
+        $this->options[$key] = $value;
+    }
+
+    /**
+     * Get a single pagination option
+     *
+     * @param string $key    The option key
+     * @param mixed $default The default value to return if the option is not set
+     *
+     * @return void
+     *
+     * @since __DEPLOY_VERSION__
+     */
+    public function getOption($key, $default = null)
+    {
+        return $this->options[$key] ?? $default;
     }
 
     /**
@@ -549,7 +613,7 @@ class Pagination
             }
         }
 
-        return $this->getPaginationLinks();
+        return $this->getPaginationLinks($this->options['layoutId'] ?? null, $this->options);
     }
 
     /**
