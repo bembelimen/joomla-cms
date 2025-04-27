@@ -537,6 +537,7 @@
 			<option value="mail">COM_CONFIG_FIELD_VALUE_PHP_MAIL</option>
 			<option value="sendmail">COM_CONFIG_FIELD_VALUE_SENDMAIL</option>
 			<option value="smtp">COM_CONFIG_FIELD_VALUE_SMTP</option>
+			<option value="smtpoauth">COM_CONFIG_FIELD_VALUE_SMTPOAUTH</option>
 		</field>
 
 		<field
@@ -614,6 +615,14 @@
 			filter="raw"
 			autocomplete="off"
 			lock="true"
+		/>
+
+		<field
+			name="smtpoauthx"
+			type="OAuth2Client"
+			label="COM_CONFIG_FIELD_MAIL_SMTP_OAUTH2CLIENT_LABEL"
+			showon="mailonline:1[AND]mailer:smtpoauth"
+			callback_url="/administrator/index.php?option=com_config%26task=callback.mailer"
 		/>
 
 	</fieldset>
