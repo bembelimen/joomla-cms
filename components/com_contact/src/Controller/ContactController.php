@@ -75,6 +75,19 @@ class ContactController extends FormController implements UserFactoryAwareInterf
         return parent::getModel($name, $prefix, ['ignore_request' => false]);
     }
 
+    public function profileedit()
+    {
+        // Here the ID of the profile contact is loaded
+        // For testing purpose we use the ID 1
+        $id = 1;
+
+        // @todo Optional additional checks
+
+        $link = Route::_('index.php?option=com_contact&view=contact&task=contact.edit&id=' . $id, false);
+
+        $this->setRedirect($link);
+    }
+
     /**
      * Method to submit the contact form and send an email.
      *
