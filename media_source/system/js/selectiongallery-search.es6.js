@@ -28,14 +28,14 @@ const initGallery = (container, focusInput) => {
   }
   container.dataset.sgInit = '1';
 
-  const input     = container.querySelector('.js-selectiongallery-input');
+  const input = container.querySelector('.js-selectiongallery-input');
   const searchBox = container.querySelector('.js-selectiongallery-search');
-  const header    = container.querySelector('.js-selectiongallery-header');
-  const results   = container.querySelector('.js-selectiongallery-results');
-  const alertEl   = container.querySelector('.js-selectiongallery-alert');
-  const statusEl  = container.querySelector('.js-selectiongallery-status');
-  const groups    = Array.from(container.querySelectorAll('.js-selectiongallery-group'));
-  const cards     = Array.from(container.querySelectorAll('.js-selectiongallery-card'));
+  const header = container.querySelector('.js-selectiongallery-header');
+  const results = container.querySelector('.js-selectiongallery-results');
+  const alertEl = container.querySelector('.js-selectiongallery-alert');
+  const statusEl = container.querySelector('.js-selectiongallery-status');
+  const groups = Array.from(container.querySelectorAll('.js-selectiongallery-group'));
+  const cards = Array.from(container.querySelectorAll('.js-selectiongallery-card'));
   const searchKey = container.dataset.searchKey || '';
   const statusTpl = container.dataset.statusTemplate || '';
 
@@ -72,7 +72,7 @@ const initGallery = (container, focusInput) => {
       }
 
       const title = (card.querySelector('.js-selectiongallery-card-title')?.textContent || '').toLowerCase();
-      const desc  = (card.querySelector('.js-selectiongallery-card-desc')?.textContent || '').toLowerCase();
+      const desc = (card.querySelector('.js-selectiongallery-card-desc')?.textContent || '').toLowerCase();
 
       if (title.includes(needle) || desc.includes(needle)) {
         visibleCount += 1;
