@@ -119,12 +119,12 @@ $hasGroups = \count($grouped) > 1 || !isset($grouped['']);
                                 <?php echo $item->linkAttribs ?? ''; ?>
                                 aria-label="<?php echo Text::sprintf($selectLabelKey, $name); ?>">
                         <?php endif; ?>
-                            <div class="new-module-details">
+                            <span class="new-module-details d-block">
                                 <span class="new-module-title js-selectiongallery-card-title d-block"><?php echo $name; ?></span>
-                                <p class="new-module-caption js-selectiongallery-card-desc p-0">
+                                <span class="new-module-caption js-selectiongallery-card-desc p-0">
                                     <?php echo $desc; ?>
-                                </p>
-                            </div>
+                                </span>
+                            </span>
                             <span class="new-module-link">
                                 <span class="icon-plus" aria-hidden="true"></span>
                             </span>
