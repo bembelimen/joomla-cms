@@ -13,6 +13,7 @@ namespace Joomla\Component\Fields\Administrator\Field;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Form\Field\ListField;
 use Joomla\CMS\HTML\HTMLHelper;
+use Joomla\CMS\Layout\LayoutHelper;
 use Joomla\Component\Fields\Administrator\Helper\FieldsHelper;
 
 // phpcs:disable PSR1.Files.SideEffects
@@ -22,10 +23,12 @@ use Joomla\Component\Fields\Administrator\Helper\FieldsHelper;
 /**
  * Fields Type
  *
- * @since  3.7.0
+ * Renders the field-type picker: a joomla-field-modal-select web component wrapping the (hidden) type
+ * value, with a browse button that opens the shared selection gallery inline (no iframe). For an
+ * existing record the type is readonly (see FieldModel::preprocessForm()), so the picker is replaced
+ * by a static heading and the value can no longer be changed.
  *
- * @deprecated  __DEPLOY_VERSION__ will be removed in 8.0 without replacement
- *              The field type is selected in the select view before the form is displayed and can't be changed anymore.
+ * @since  3.7.0
  */
 class TypeField extends ListField
 {
@@ -35,29 +38,32 @@ class TypeField extends ListField
     public $type = 'Type';
 
     /**
-     * Method to attach a Form object to the field.
+     * Cached list of available field types (getFieldTypes() dispatches a plugin event, so call it once).
      *
-     * @param   \SimpleXMLElement  $element  The SimpleXMLElement object representing the `<field>` tag for the form field object.
-     * @param   mixed              $value    The form field value to validate.
-     * @param   string             $group    The field name group control value. This acts as an array container for the field.
-     *                                       For example if the field has name="foo" and the group value is set to "bar" then the
-     *                                       full field name would end up being "bar[foo]".
+     * @var    array|null
      *
-     * @return  boolean  True on success.
-     *
-     * @since   3.7.0
+     * @since  __DEPLOY_VERSION__
      */
-    public function setup(\SimpleXMLElement $element, $value, $group = null)
+    private $fieldTypesData;
+
+    /**
+     * Get the available field types, cached for the lifetime of the field.
+     *
+     * @return  array
+     *
+     * @since   __DEPLOY_VERSION__
+     */
+    protected function getFieldTypesData(): array
     {
-        $return = parent::setup($element, $value, $group);
+        if ($this->fieldTypesData === null) {
+            $this->fieldTypesData = FieldsHelper::getFieldTypes();
+        }
 
-        $this->onchange = 'Joomla.typeHasChanged(this);';
-
-        return $return;
+        return $this->fieldTypesData;
     }
 
     /**
-     * Method to get the field options.
+     * Method to get the field options (kept for backward compatibility).
      *
      * @return  array  The field option objects.
      *
@@ -67,9 +73,7 @@ class TypeField extends ListField
     {
         $options = parent::getOptions();
 
-        $fieldTypes = FieldsHelper::getFieldTypes();
-
-        foreach ($fieldTypes as $fieldType) {
+        foreach ($this->getFieldTypesData() as $fieldType) {
             $options[] = HTMLHelper::_('select.option', $fieldType['type'], $fieldType['label']);
         }
 
@@ -81,11 +85,62 @@ class TypeField extends ListField
             }
         );
 
-        // Load scripts
-        Factory::getApplication()->getDocument()->getWebAssetManager()
-            ->useScript('com_fields.admin-field-typehaschanged')
-            ->useScript('webcomponent.core-loader');
-
         return $options;
+    }
+
+    /**
+     * Method to get the field input markup: the inline modal-select picker.
+     *
+     * @return  string  The field input markup.
+     *
+     * @since   __DEPLOY_VERSION__
+     */
+    public function getInput()
+    {
+        // Only load the picker behaviour when the type can actually be changed (a new record).
+        if (!$this->readonly && !$this->disabled) {
+            Factory::getApplication()->getDocument()->getWebAssetManager()
+                ->useScript('com_fields.admin-field-typehaschanged')
+                ->useScript('webcomponent.core-loader')
+                ->useScript('webcomponent.field-modal-select')
+                ->useScript('selectiongallery-search');
+        }
+
+        return LayoutHelper::render(
+            'field.fieldtypeselect',
+            $this->getLayoutData(),
+            JPATH_ADMINISTRATOR . '/components/com_fields/layouts'
+        );
+    }
+
+    /**
+     * Method to get the data to be passed to the layout for rendering.
+     *
+     * @return  array
+     *
+     * @since   __DEPLOY_VERSION__
+     */
+    protected function getLayoutData()
+    {
+        $data  = parent::getLayoutData();
+        $types = $this->getFieldTypesData();
+
+        // The current type definition (label/description) for the heading.
+        $data['fieldType'] = $types[$this->value] ?? null;
+
+        // Normalised items for the shared selection-gallery layout.
+        $items = [];
+
+        foreach ($types as $type) {
+            $items[] = (object) [
+                'value'       => $type['type'],
+                'title'       => $type['label'],
+                'description' => $type['description'] ?? '',
+            ];
+        }
+
+        $data['items'] = $items;
+
+        return $data;
     }
 }

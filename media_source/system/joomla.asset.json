@@ -675,6 +675,29 @@
       }
     },
     {
+      "type": "script",
+      "name": "webcomponent.field-modal-select",
+      "dependencies": [
+        "core",
+        "joomla.dialog"
+      ],
+      "uri": "system/fields/joomla-field-modal-select.min.js",
+      "attributes": {
+        "type": "module"
+      }
+    },
+    {
+      "type": "script",
+      "name": "selectiongallery-search",
+      "dependencies": [
+        "core"
+      ],
+      "uri": "system/selectiongallery-search.min.js",
+      "attributes": {
+        "type": "module"
+      }
+    },
+    {
       "name": "joomla.treeselectmenu",
       "type": "script",
       "uri": "system/treeselectmenu.min.js",

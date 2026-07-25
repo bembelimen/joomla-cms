@@ -40,17 +40,8 @@ $wa->useScript('keepalive')
         <?php echo HTMLHelper::_('uitab.addTab', 'myTab', 'general', Text::_('COM_FIELDS_VIEW_FIELD_FIELDSET_GENERAL', true)); ?>
         <div class="row">
             <div class="col-lg-9">
-                <?php if ($this->fieldType) : ?>
-                    <h2><?php echo $this->fieldType['label']; ?></h2>
-                    <?php if (!empty($this->fieldType['description'])) : ?>
-                        <p><?php echo $this->fieldType['description']; ?></p>
-                    <?php endif; ?>
-                <?php else : ?>
-                    <div class="alert alert-danger">
-                        <span class="icon-exclamation-triangle" aria-hidden="true"></span><span class="visually-hidden"><?php echo Text::_('ERROR'); ?></span>
-                        <?php echo Text::sprintf('COM_FIELDS_FIELD_TYPE_NOT_FOUND', $this->escape($this->form->getField('type')->value)); ?>
-                    </div>
-                <?php endif; ?>
+                <?php // The field type picker (or a static heading for an existing, locked record) is rendered by TypeField. ?>
+                <?php echo $this->form->getInput('type'); ?>
                 <hr>
                 <?php echo $this->form->renderField('name'); ?>
                 <?php echo $this->form->renderField('label'); ?>
@@ -105,7 +96,6 @@ $wa->useScript('keepalive')
             <?php echo HTMLHelper::_('uitab.endTab'); ?>
         <?php endif; ?>
         <?php echo HTMLHelper::_('uitab.endTabSet'); ?>
-        <?php echo $this->form->getInput('type'); ?>
         <?php echo $this->form->getInput('context'); ?>
 
         <?php echo $this->form->renderControlFields(); ?>
