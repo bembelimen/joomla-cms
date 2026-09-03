@@ -11,8 +11,8 @@
 namespace Joomla\Plugin\Editors\TinyMCE\PluginTraits;
 
 use Joomla\CMS\Component\ComponentHelper;
-use Joomla\CMS\Factory;
 use Joomla\CMS\Event\Link\LinkProvidersSetupEvent;
+use Joomla\CMS\Factory;
 use Joomla\CMS\Filter\InputFilter;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Layout\LayoutHelper;
