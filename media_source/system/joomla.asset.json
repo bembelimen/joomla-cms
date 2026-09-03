@@ -630,6 +630,31 @@
       ]
     },
     {
+      "name": "link-picker",
+      "type": "style",
+      "uri": "system/link-picker.min.css"
+    },
+    {
+      "name": "link-picker",
+      "type": "script",
+      "uri": "system/link-picker.min.js",
+      "importmap": true,
+      "dependencies": [
+        "joomla.dialog"
+      ]
+    },
+    {
+      "name": "field.linkselect",
+      "type": "script",
+      "uri": "system/fields/linkselect-field.min.js",
+      "attributes": {
+        "type": "module"
+      },
+      "dependencies": [
+        "link-picker"
+      ]
+    },
+    {
       "name": "joomla.dialog-autocreate",
       "type": "script",
       "uri": "system/joomla-dialog-autocreate.min.js",

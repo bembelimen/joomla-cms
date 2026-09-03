@@ -12,6 +12,7 @@ namespace Joomla\Plugin\EditorsXtd\Article\Extension;
 
 use Joomla\CMS\Editor\Button\Button;
 use Joomla\CMS\Event\Editor\EditorButtonsSetupEvent;
+use Joomla\CMS\Event\Link\LinkProvidersSetupEvent;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Session\Session;
@@ -37,7 +38,72 @@ final class Article extends CMSPlugin implements SubscriberInterface
      */
     public static function getSubscribedEvents(): array
     {
-        return ['onEditorButtonsSetup' => 'onEditorButtonsSetup'];
+        return [
+            'onEditorButtonsSetup' => 'onEditorButtonsSetup',
+            'onLinkProvidersSetup' => 'onLinkProvidersSetup',
+        ];
+    }
+
+    /**
+     * Register the Article and Category link sources for the link picker.
+     *
+     * @param   LinkProvidersSetupEvent  $event  The event
+     *
+     * @return  void
+     *
+     * @since   __DEPLOY_VERSION__
+     */
+    public function onLinkProvidersSetup(LinkProvidersSetupEvent $event): void
+    {
+        if (!$this->hasAccess()) {
+            return;
+        }
+
+        $this->loadLanguage();
+
+        $providers = [
+            'article' => [
+                'title'  => Text::_('PLG_ARTICLE_BUTTON_ARTICLE'),
+                'icon'   => 'file-add',
+                'src'    => 'index.php?option=com_content&view=articles&layout=modal&tmpl=component',
+                'select' => 'content',
+            ],
+        ];
+
+        // The category modal is guarded by "core.manage" of the extension it lists
+        if ($this->getApplication()->getIdentity()->authorise('core.manage', 'com_content')) {
+            $providers['category'] = [
+                'title'  => Text::_('PLG_ARTICLE_BUTTON_CATEGORY'),
+                'icon'   => 'folder',
+                'src'    => 'index.php?option=com_categories&view=categories&extension=com_content&layout=modal&tmpl=component',
+                'select' => 'content',
+            ];
+        }
+
+        $event->getDocument()->addScriptOptions('link-providers', $providers, true);
+    }
+
+    /**
+     * Whether the current user may link to com_content records.
+     *
+     * @return  boolean
+     *
+     * @since   __DEPLOY_VERSION__
+     */
+    private function hasAccess(): bool
+    {
+        $user = $this->getApplication()->getIdentity();
+
+        // Can create in any category (component permission) or at least in one category
+        $canCreateRecords = $user->authorise('core.create', 'com_content')
+            || \count($user->getAuthorisedCategories('com_content', 'core.create')) > 0;
+
+        // Instead of checking edit on all records, we can use **same** check as the form editing view
+        $values           = (array) $this->getApplication()->getUserState('com_content.edit.article.id');
+        $isEditingRecords = \count($values);
+
+        // This ACL check is probably a double-check (form view already performed checks)
+        return $canCreateRecords || $isEditingRecords;
     }
 
     /**
@@ -77,19 +143,7 @@ final class Article extends CMSPlugin implements SubscriberInterface
      */
     public function onDisplay($name)
     {
-        $user  = $this->getApplication()->getIdentity();
-
-        // Can create in any category (component permission) or at least in one category
-        $canCreateRecords = $user->authorise('core.create', 'com_content')
-            || \count($user->getAuthorisedCategories('com_content', 'core.create')) > 0;
-
-        // Instead of checking edit on all records, we can use **same** check as the form editing view
-        $values           = (array) $this->getApplication()->getUserState('com_content.edit.article.id');
-        $isEditingRecords = \count($values);
-
-        // This ACL check is probably a double-check (form view already performed checks)
-        $hasAccess = $canCreateRecords || $isEditingRecords;
-        if (!$hasAccess) {
+        if (!$this->hasAccess()) {
             return;
         }
 
@@ -109,16 +163,6 @@ final class Article extends CMSPlugin implements SubscriberInterface
                 'name' => $this->_type . '_' . $this->_name,
             ]
         );
-
-        // Register as a link source for editors that offer a link picker (e.g. TinyMCE)
-        $this->getApplication()->getDocument()->addScriptOptions('editor-link-providers', [
-            $this->_name => [
-                'title'  => Text::_('PLG_ARTICLE_BUTTON_ARTICLE'),
-                'icon'   => 'file-add',
-                'src'    => 'index.php?option=com_content&view=articles&layout=modal&tmpl=component',
-                'select' => 'content',
-            ],
-        ], true);
 
         return $button;
     }

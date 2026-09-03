@@ -11,13 +11,17 @@
 namespace Joomla\Plugin\Editors\TinyMCE\PluginTraits;
 
 use Joomla\CMS\Component\ComponentHelper;
+use Joomla\CMS\Factory;
+use Joomla\CMS\Event\Link\LinkProvidersSetupEvent;
 use Joomla\CMS\Filter\InputFilter;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Layout\LayoutHelper;
+use Joomla\CMS\Plugin\PluginHelper;
 use Joomla\CMS\Session\Session;
 use Joomla\CMS\Uri\Uri;
 use Joomla\Component\Media\Administrator\Exception\ProviderAccountNotFoundException;
 use Joomla\Component\Media\Administrator\Provider\ProviderManagerHelperTrait;
+use Joomla\Event\DispatcherInterface;
 use Joomla\Registry\Registry;
 
 // phpcs:disable PSR1.Files.SideEffects
@@ -263,12 +267,22 @@ trait DisplayTrait
         $wa->useScript('plg_editors_tinymce.jfilepicker');
 
         // The link picker for the native Link dialog (registers the 'file' picker)
-        $wa->useStyle('plg_editors_tinymce.linkpicker');
-        $wa->useScript('plg_editors_tinymce.linkpicker');
+        $wa->useStyle('link-picker')
+            ->useScript('link-picker')
+            ->useScript('plg_editors_tinymce.linkpicker');
+
+        $dispatcher = Factory::getContainer()->get(DispatcherInterface::class);
+
+        PluginHelper::importPlugin('editors-xtd', null, true, $dispatcher);
+
+        $dispatcher->dispatch(
+            'onLinkProvidersSetup',
+            new LinkProvidersSetupEvent('onLinkProvidersSetup', ['subject' => $doc])
+        );
 
         // UI strings for the link picker
-        Text::script('PLG_TINY_LINK_PICKER_TITLE');
-        Text::script('PLG_TINY_LINK_MEDIA');
+        Text::script('JLIB_LINK_PICKER_TITLE');
+        Text::script('JLIB_LINK_PICKER_MEDIA');
         Text::script('JSELECT');
         Text::script('JCLOSE');
 

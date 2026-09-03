@@ -63,7 +63,11 @@
     {
       "name": "plg_editors_tinymce.linkpicker",
       "type": "style",
-      "uri": "plg_editors_tinymce/linkpicker.min.css"
+      "deprecated": true,
+      "uri": "",
+      "dependencies": [
+        "link-picker"
+      ]
     },
     {
       "name": "plg_editors_tinymce.linkpicker",
@@ -73,7 +77,7 @@
         "type": "module"
       },
       "dependencies": [
-        "joomla.dialog"
+        "link-picker"
       ]
     },
     {

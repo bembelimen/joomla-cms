@@ -25,6 +25,7 @@ const getExternalModules = async () => {
     'cropper-module',
     'codemirror',
     'joomla.dialog',
+    'link-picker',
     'editor-api',
     'editor-decorator',
     'sa11y',
