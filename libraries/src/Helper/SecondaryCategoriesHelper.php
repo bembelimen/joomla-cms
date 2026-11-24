@@ -102,10 +102,9 @@ class SecondaryCategoriesHelper extends CMSHelper
      * Generates SQL that matches items belonging to one or more categories,
      * considering both primary category assignment and secondary category mappings.
      *
-     * This method centralizes the common pattern:
+     * The ids of the secondarily mapped items are loaded up front, so the condition is
      *   (alias.catid IN (...) [OR alias.catid IN (descendants)])
-     *   OR
-     *   alias.id IN (mapped items query)
+     *   [OR alias.id IN (mapped item ids)]
      *
      * @param   array   $categoryIds           The category IDs to match.
      * @param   bool    $includeSubcategories   Whether to include child categories in the match.
@@ -132,14 +131,18 @@ class SecondaryCategoriesHelper extends CMSHelper
         $catidColumn = $db->quoteName($tableAlias . '.' . $categoryColumn);
         $idColumn    = $db->quoteName($tableAlias . '.' . $keyColumn);
 
-        // Build primary category condition (with optional subcategories)
         $primaryCondition = $this->buildPrimaryCategoryCondition($catidColumn, $boundedIds, $categoryIds, $includeSubcategories, $levels);
 
-        // Build secondary category condition (respects subcategories setting)
-        $secondaryQuery     = $this->getMappedItemIdsQuery($categoryIds, $includeSubcategories, $levels);
-        $secondaryCondition = $idColumn . ' IN (' . $secondaryQuery . ')';
+        // An id list keeps the OR index friendly, "id IN (subquery)" forces a scan of the whole item table
+        $secondaryIds = ArrayHelper::toInteger(
+            $db->setQuery($this->getMappedItemIdsQuery($categoryIds, $includeSubcategories, $levels))->loadColumn()
+        );
 
-        return '(' . $primaryCondition . ' OR ' . $secondaryCondition . ')';
+        if (!$secondaryIds) {
+            return $primaryCondition;
+        }
+
+        return '(' . $primaryCondition . ' OR ' . $idColumn . ' IN (' . implode(',', $secondaryIds) . '))';
     }
 
     /**
