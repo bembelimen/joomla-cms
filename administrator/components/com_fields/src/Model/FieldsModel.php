@@ -33,6 +33,14 @@ use Joomla\Utilities\ArrayHelper;
 class FieldsModel extends ListModel
 {
     /**
+     * Per context whether any of its fields is assigned to a category
+     *
+     * @var    bool[]
+     * @since  __DEPLOY_VERSION__
+     */
+    private array $categoryAssignedFields = [];
+
+    /**
      * Constructor
      *
      * @param   array                 $config   An array of configuration options (name, state, dbo, table_path, ignore_request).
@@ -196,7 +204,7 @@ class FieldsModel extends ListModel
             $categories = ArrayHelper::toInteger($categories);
             $parts      = FieldsHelper::extract($context);
 
-            if ($parts) {
+            if ($parts && $this->hasCategoryAssignedFields($context)) {
                 // Get the categories for this component (and optionally this section, if available)
                 $cat = (
                     function () use ($parts) {
@@ -461,5 +469,31 @@ class FieldsModel extends ListModel
         $db->setQuery($query);
 
         return $db->loadObjectList();
+    }
+
+    /**
+     * Checks whether any field of the given context is assigned to a category.
+     *
+     * @param   string  $context  The context of the fields
+     *
+     * @return  boolean
+     *
+     * @since   __DEPLOY_VERSION__
+     */
+    private function hasCategoryAssignedFields(string $context): bool
+    {
+        if (!isset($this->categoryAssignedFields[$context])) {
+            $db    = $this->getDatabase();
+            $query = $db->createQuery()
+                ->select('1')
+                ->from($db->quoteName('#__fields_categories', 'fc'))
+                ->join('INNER', $db->quoteName('#__fields', 'f'), $db->quoteName('f.id') . ' = ' . $db->quoteName('fc.field_id'))
+                ->where($db->quoteName('f.context') . ' = :context')
+                ->bind(':context', $context);
+
+            $this->categoryAssignedFields[$context] = (bool) $db->setQuery($query, 0, 1)->loadResult();
+        }
+
+        return $this->categoryAssignedFields[$context];
     }
 }
