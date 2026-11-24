@@ -337,33 +337,39 @@ class Categories implements CategoryInterface, DatabaseAwareInterface
 
         // Note: s for selected id
         if ($id !== 'root') {
+            $pathIds     = [];
+            $parentId    = $id;
+            $parentQuery = $db->createQuery()
+                ->select($db->quoteName('parent_id'))
+                ->from($db->quoteName('#__categories'))
+                ->where($db->quoteName('id') . ' = :parentId')
+                ->bind(':parentId', $parentId, ParameterType::INTEGER);
+
+            while ($parentId > 0 && !\in_array($parentId, $pathIds, true)) {
+                $pathIds[] = $parentId;
+                $parentId  = (int) $db->setQuery($parentQuery)->loadResult();
+            }
+
             // Get the selected category
             $query->from($db->quoteName('#__categories', 's'))
                 ->where($db->quoteName('s.id') . ' = :id')
                 ->bind(':id', $id, ParameterType::INTEGER);
 
+            $descendants = $db->quoteName('s.lft') . ' < ' . $db->quoteName('c.lft')
+                . ' AND ' . $db->quoteName('c.lft') . ' < ' . $db->quoteName('s.rgt');
+
             if ($app->isClient('site') && Multilanguage::isEnabled()) {
-                // For the most part, we use c.lft column, which index is properly used instead of c.rgt
-                $query->join(
-                    'INNER',
-                    $db->quoteName('#__categories', 'c'),
-                    '(' . $db->quoteName('s.lft') . ' < ' . $db->quoteName('c.lft')
-                    . ' AND ' . $db->quoteName('c.lft') . ' < ' . $db->quoteName('s.rgt')
-                    . ' AND ' . $db->quoteName('c.language')
-                    . ' IN (' . implode(',', $query->bindArray([Factory::getLanguage()->getTag(), '*'], ParameterType::STRING)) . '))'
-                    . ' OR (' . $db->quoteName('c.lft') . ' <= ' . $db->quoteName('s.lft')
-                    . ' AND ' . $db->quoteName('s.rgt') . ' <= ' . $db->quoteName('c.rgt') . ')'
-                );
-            } else {
-                $query->join(
-                    'INNER',
-                    $db->quoteName('#__categories', 'c'),
-                    '(' . $db->quoteName('s.lft') . ' <= ' . $db->quoteName('c.lft')
-                    . ' AND ' . $db->quoteName('c.lft') . ' < ' . $db->quoteName('s.rgt') . ')'
-                    . ' OR (' . $db->quoteName('c.lft') . ' < ' . $db->quoteName('s.lft')
-                    . ' AND ' . $db->quoteName('s.rgt') . ' < ' . $db->quoteName('c.rgt') . ')'
-                );
+                $descendants .= ' AND ' . $db->quoteName('c.language')
+                    . ' IN (' . implode(',', $query->bindArray([$app->getLanguage()->getTag(), '*'], ParameterType::STRING)) . ')';
             }
+
+            // The path as id list keeps both sides index driven, a lft/rgt range for the parents scans the whole table
+            $query->join(
+                'INNER',
+                $db->quoteName('#__categories', 'c'),
+                '(' . $descendants . ') OR ' . $db->quoteName('c.id')
+                . ' IN (' . implode(',', $query->bindArray($pathIds, ParameterType::INTEGER)) . ')'
+            );
         } else {
             $query->from($db->quoteName('#__categories', 'c'));
 
@@ -374,46 +380,23 @@ class Categories implements CategoryInterface, DatabaseAwareInterface
 
         // Note: i for item
         if ($this->_options['countItems'] == 1) {
-            $context = $this->getCategoryMappingContext();
-
-            $subQuery = $db->createQuery()
-                ->select('COUNT(DISTINCT ' . $db->quoteName($db->escape('i.' . $this->_key)) . ')')
-                ->from($db->quoteName($db->escape($this->_table), 'i'));
-
-            if ($context !== null) {
-                $subQuery->join(
-                    'LEFT',
-                    $db->quoteName('#__category_item_map', 'm'),
-                    $db->quoteName('m.item_id') . ' = ' . $db->quoteName($db->escape('i.' . $this->_key))
-                    . ' AND '
-                    . $db->quoteName('m.context') . ' = ' . $db->quote($context)
-                );
-
-                $subQuery->where(
-                    '(' . $db->quoteName($db->escape('i.' . $this->_field)) . ' = ' . $db->quoteName('c.id') . ' OR ' . $db->quoteName('m.category_id') . ' = ' . $db->quoteName('c.id') . ')'
-                );
-            } else {
-                $subQuery->where(
-                    $db->quoteName($db->escape('i.' . $this->_field)) . ' = ' . $db->quoteName('c.id')
-                );
-            }
+            $context        = $this->getCategoryMappingContext();
+            $itemConditions = [];
 
             if ($this->_accessfield && $this->_options['accessOnItems']) {
-                $subQuery->where(
-                    $db->quoteName($db->escape('i.' . $this->_accessfield))
-                    . ' IN (' . implode(',', $query->bindArray($user->getAuthorisedViewLevels())) . ')'
-                );
+                $itemConditions[] = $db->quoteName($db->escape('i.' . $this->_accessfield))
+                    . ' IN (' . implode(',', $query->bindArray($user->getAuthorisedViewLevels())) . ')';
             }
 
             if ($this->_options['published'] == 1) {
-                $subQuery->where($db->quoteName($db->escape('i.' . $this->_statefield)) . ' = 1');
+                $itemConditions[] = $db->quoteName($db->escape('i.' . $this->_statefield)) . ' = 1';
 
                 if (isset($this->_options['check_dates']) && $this->_options['check_dates']) {
                     $nullDate = $db->getNullDate();
                     $nowDate  = Factory::getDate()->toSql();
 
-                    $subQuery->where('(' . $db->quoteName('i.publish_up') . ' IS NULL OR ' . $db->quoteName('i.publish_up') . ' = :nullDate1 OR ' . $db->quoteName('i.publish_up') . ' <= :nowDate1)')
-                        ->where('(' . $db->quoteName('i.publish_down') . ' IS NULL OR ' . $db->quoteName('i.publish_down') . ' = :nullDate2 OR ' . $db->quoteName('i.publish_down') . ' >= :nowDate2)');
+                    $itemConditions[] = '(' . $db->quoteName('i.publish_up') . ' IS NULL OR ' . $db->quoteName('i.publish_up') . ' = :nullDate1 OR ' . $db->quoteName('i.publish_up') . ' <= :nowDate1)';
+                    $itemConditions[] = '(' . $db->quoteName('i.publish_down') . ' IS NULL OR ' . $db->quoteName('i.publish_down') . ' = :nullDate2 OR ' . $db->quoteName('i.publish_down') . ' >= :nowDate2)';
 
                     $query->bind(':nullDate1', $nullDate)
                         ->bind(':nowDate1', $nowDate)
@@ -423,13 +406,47 @@ class Categories implements CategoryInterface, DatabaseAwareInterface
             }
 
             if ($this->_options['currentlang'] !== 0) {
-                $subQuery->where(
-                    $db->quoteName('i.language')
-                    . ' IN (' . implode(',', $query->bindArray([$this->_options['currentlang'], '*'], ParameterType::STRING)) . ')'
-                );
+                $itemConditions[] = $db->quoteName('i.language')
+                    . ' IN (' . implode(',', $query->bindArray([$this->_options['currentlang'], '*'], ParameterType::STRING)) . ')';
             }
 
-            $query->select('(' . $subQuery . ') AS ' . $db->quoteName('numitems'));
+            $subQuery = $db->createQuery()
+                ->select('COUNT(' . $db->quoteName($db->escape('i.' . $this->_key)) . ')')
+                ->from($db->quoteName($db->escape($this->_table), 'i'))
+                ->where($db->quoteName($db->escape('i.' . $this->_field)) . ' = ' . $db->quoteName('c.id'));
+
+            if ($itemConditions) {
+                $subQuery->where($itemConditions);
+            }
+
+            $numItems = '(' . $subQuery . ')';
+
+            if ($context !== null) {
+                // Two index driven counts, an OR across both tables scans every item for every category
+                $mappedQuery = $db->createQuery()
+                    ->select('COUNT(' . $db->quoteName('m.item_id') . ')')
+                    ->from($db->quoteName('#__category_item_map', 'm'))
+                    ->join(
+                        'INNER',
+                        $db->quoteName($db->escape($this->_table), 'i'),
+                        $db->quoteName($db->escape('i.' . $this->_key)) . ' = ' . $db->quoteName('m.item_id')
+                    )
+                    ->where(
+                        [
+                            $db->quoteName('m.context') . ' = ' . $db->quote($context),
+                            $db->quoteName('m.category_id') . ' = ' . $db->quoteName('c.id'),
+                            $db->quoteName($db->escape('i.' . $this->_field)) . ' <> ' . $db->quoteName('c.id'),
+                        ]
+                    );
+
+                if ($itemConditions) {
+                    $mappedQuery->where($itemConditions);
+                }
+
+                $numItems .= ' + (' . $mappedQuery . ')';
+            }
+
+            $query->select('(' . $numItems . ') AS ' . $db->quoteName('numitems'));
         }
 
         // Get the results
