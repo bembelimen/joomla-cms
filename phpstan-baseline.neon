@@ -7957,7 +7957,7 @@ parameters:
 				             Factory\:\:getApplication\(\)\-\>getLanguage\(\);$#
 			'''
 			identifier: staticMethod.deprecated
-			count: 3
+			count: 2
 			path: libraries/src/Categories/Categories.php
 
 		-
